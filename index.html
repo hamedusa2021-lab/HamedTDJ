@@ -114,7 +114,24 @@
   .option-row{grid-template-columns:62px 1fr 95px 72px 20px!important}
   .option-strike{font-size:15px!important}.option-volume{font-size:13px!important}.option-currency{font-size:11px!important}
 }
-</style>
+<style>
+/* Entry Checklist page */
+.checklist-page{display:none}
+.checklist-page.active{display:block}
+.checklist-wrap{display:grid;gap:14px}
+.checklist-gate{border:1px solid rgba(143,211,199,.16);border-radius:14px;background:linear-gradient(145deg,rgba(12,21,16,.92),rgba(6,11,8,.97));overflow:hidden}
+.checklist-gate-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid rgba(143,211,199,.08)}
+.checklist-gate-title{font-size:16px;font-weight:900;color:#e8fff2;letter-spacing:.4px}
+.checklist-status{font-size:12px;font-weight:900;padding:7px 12px;border-radius:8px;background:rgba(245,208,111,.1);color:#f5d06f;border:1px solid rgba(245,208,111,.2)}
+.checklist-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.checklist-card{border:1px solid rgba(143,211,199,.12);border-radius:12px;background:rgba(255,255,255,.018);padding:13px;min-height:130px}
+.checklist-card-title{font-size:13px;font-weight:850;color:#dfffee;margin-bottom:9px}
+.checklist-placeholder{font-size:11px;line-height:1.8;color:#718179}
+.checklist-section{border:1px solid rgba(143,211,199,.12);border-radius:12px;background:rgba(255,255,255,.018);padding:13px}
+.checklist-section-title{font-size:13px;font-weight:850;color:#dfffee;margin-bottom:10px}
+.checklist-rule-placeholder{border:1px dashed rgba(143,211,199,.16);border-radius:8px;padding:11px;color:#65736c;font-size:10px}
+@media(max-width:900px){.checklist-grid{grid-template-columns:1fr}}
+</style></style>
 </head>
 <body>
 <div class="app">
@@ -224,5 +241,36 @@ function renderOptions(){const pf=document.getElementById('optionPriorityFilter'
 document.getElementById('refreshOptions').onclick=loadOnlineOptions;document.getElementById('openCmeOptions').onclick=()=>window.open('https://www.cmegroup.com/markets/fx/g10/euro-fx/volume/options','_blank','noopener');
 document.getElementById('openInvestingLiveOrders').onclick=()=>window.open('https://investinglive.com/Orders/','_blank','noopener');document.getElementById('addOptionBtn').onclick=()=>document.getElementById('optionForm').classList.toggle('show');document.getElementById('saveOption').onclick=(ev)=>{ev.preventDefault();const country=document.getElementById('manualOptionCurrency').value.trim().toUpperCase(),strike=Number(document.getElementById('manualOptionStrike').value),volume=Number(document.getElementById('manualOptionVolume').value),priority=document.getElementById('manualOptionPriority').value;if(!country){alert('ارز را وارد کنید');return}if(!Number.isFinite(strike)){alert('Strike را وارد کنید');return}if(!Number.isFinite(volume)){alert('Volume را وارد کنید');return}optionItems.push({id:'om-'+Date.now(),country,strike,volume,priority,manual:true});saveOptions();renderOptions();document.getElementById('optionForm').classList.remove('show');document.getElementById('manualOptionCurrency').value='';document.getElementById('manualOptionStrike').value='';document.getElementById('manualOptionVolume').value='';};document.getElementById('optionPriorityFilter').onchange=renderOptions;document.getElementById('optionCurrencyFilter').onchange=renderOptions;renderOptions();loadOnlineOptions();setInterval(loadOnlineOptions,30*60*1000);
 </script>
-</body>
+<section class="checklist-page" id="checklistPage">
+  <div class="checklist-wrap">
+    <div class="checklist-gate">
+      <div class="checklist-gate-head">
+        <div class="checklist-gate-title">ENTRY CHECKLIST</div>
+        <div class="checklist-status">GATE: WAITING</div>
+      </div>
+      <div class="checklist-grid">
+        <div class="checklist-card">
+          <div class="checklist-card-title">📰 خبرهای نزدیک</div>
+          <div class="checklist-placeholder">محل نمایش خبرهای نزدیک و زمان باقی‌مانده</div>
+        </div>
+        <div class="checklist-card">
+          <div class="checklist-card-title">◎ OPTIONS</div>
+          <div class="checklist-placeholder">محل نمایش Strike، Volume، Currency و Priority</div>
+        </div>
+        <div class="checklist-card">
+          <div class="checklist-card-title">◷ SESSIONS</div>
+          <div class="checklist-placeholder">محل نمایش Session فعال و وضعیت بازار</div>
+        </div>
+      </div>
+    </div>
+    <div class="checklist-section">
+      <div class="checklist-section-title">✅ بایدها</div>
+      <div class="checklist-rule-placeholder">قوانین و شروط ورود بعداً از اینجا اضافه، ویرایش یا حذف می‌شوند.</div>
+    </div>
+    <div class="checklist-section">
+      <div class="checklist-section-title">⛔ نبایدها</div>
+      <div class="checklist-rule-placeholder">قوانین و شروط منع ورود بعداً از اینجا اضافه، ویرایش یا حذف می‌شوند.</div>
+    </div>
+  </div>
+</section></body>
 </html>
