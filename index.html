@@ -275,9 +275,6 @@ function defaultDB(){const a1=uid();
   {id:uid(),name:'New York',tz:'America/New_York',open:'08:00',close:'17:00',color:'#16C784',days:[1,2,3,4,5],en:true},
   {id:uid(),name:'London / NY Overlap',tz:'Europe/London',open:'13:00',close:'16:30',color:'#FF7A45',days:[1,2,3,4,5],en:true},
   {id:uid(),name:'Tokyo / London Overlap',tz:'Europe/London',open:'08:00',close:'09:00',color:'#F472B6',days:[1,2,3,4,5],en:true}],
- clocks:[
-  {id:uid(),name:'Tehran',tz:'Asia/Tehran'},{id:uid(),name:'UTC',tz:'UTC'},{id:uid(),name:'London',tz:'Europe/London'},
-  {id:uid(),name:'New York',tz:'America/New_York'},{id:uid(),name:'Tokyo',tz:'Asia/Tokyo'},{id:uid(),name:'Dubai',tz:'Asia/Dubai'}],
  checklist:ck,answers:{},
  tags:['FOMO','Revenge','Early Entry','Overtrading','Moved SL','No Confirmation','Against HTF','News Trading','Hesitation'].map(t=>({id:uid(),name:t})),
  rules:[
@@ -317,7 +314,7 @@ function doSave(){if(!_dirty)return;_dirty=false;DB.savedAt=Date.now();const sna
 async function loadDB(){let raw=await idbGet();if(!raw){try{raw=localStorage.getItem(DBN);}catch(e){}}let parsed=null;if(raw){try{parsed=JSON.parse(raw);}catch(e){toast('داده ذخیره‌شده خراب بود — پیش‌فرض بارگذاری شد','err');}}DB=deepMerge(defaultDB(),parsed||{});DB.app='td-os';if(!DB.activeAcc&&DB.accounts[0])DB.activeAcc=DB.accounts[0].id;sanitize();}
 /* [پچ ۲] فیلتر آیتم‌های غیر-object قبل از دسترسی به id — جلوگیری از کرش بوت در strict mode
    [پچ ۱۶] مهاجرت معاملات نسخه قدیم (partials / close.legs → legs) */
-function sanitize(){const d=defaultDB();['accounts','symbols','sessions','clocks','checklist','tags','rules','widgets','cols','customFields','news','strikes','trades'].forEach(k=>{if(!Array.isArray(DB[k]))DB[k]=d[k];DB[k]=DB[k].filter(o=>o&&typeof o==='object');DB[k].forEach(o=>{if(!o.id)o.id=uid();});});if(!DB.checklist.length)DB.checklist=d.checklist;if(!DB.accounts.length)DB.accounts=d.accounts;if(!DB.activeAcc||!DB.accounts.find(a=>a.id===DB.activeAcc))DB.activeAcc=DB.accounts[0].id;if(!DB.symbols.length)DB.symbols=d.symbols;if(!DB.sessions.length)DB.sessions=d.sessions;if(!DB.settings)DB.settings=d.settings;DB.trades=DB.trades.filter(t=>t&&t.id);
+function sanitize(){const d=defaultDB();delete DB.clocks;['accounts','symbols','sessions','checklist','tags','rules','widgets','cols','customFields','news','strikes','trades'].forEach(k=>{if(!Array.isArray(DB[k]))DB[k]=d[k];DB[k]=DB[k].filter(o=>o&&typeof o==='object');DB[k].forEach(o=>{if(!o.id)o.id=uid();});});if(!DB.checklist.length)DB.checklist=d.checklist;if(!DB.accounts.length)DB.accounts=d.accounts;if(!DB.activeAcc||!DB.accounts.find(a=>a.id===DB.activeAcc))DB.activeAcc=DB.accounts[0].id;if(!DB.symbols.length)DB.symbols=d.symbols;if(!DB.sessions.length)DB.sessions=d.sessions;if(!DB.settings)DB.settings=d.settings;DB.trades=DB.trades.filter(t=>t&&t.id);
  DB.trades.forEach(t=>{if(!Array.isArray(t.legs))t.legs=[];
   if(!t.legs.length){(Array.isArray(t.partials)?t.partials:[]).forEach(p=>t.legs.push({price:p.price,pct:p.sharePct??p.pct??0,ts:p.time||t.openedAt,type:'Manual'}));
    if(t.close&&Array.isArray(t.close.legs))t.close.legs.forEach(l=>t.legs.push({price:l.price,pct:l.sharePct??l.pct??100,ts:l.time||t.closedAt,type:'Manual'}));}
@@ -327,7 +324,7 @@ window.addEventListener('error',e=>{try{toast('خطا: '+(e.message||'نامشخ
 window.addEventListener('unhandledrejection',()=>{});
 /* ============================ UI STATE / ROUTER ============================ */
 const UI={page:'dash',editTrade:null,calM:null,anaDim:'symbol',anaRange:'day',jq:{k:'closedAt',d:-1},ovr:false,ovrReason:'',ack:{},week:null,stkSym:'',ss:[]};
-const NAV=[['dash','▦','داشبورد'],['clock','🕓','ساعت جهانی'],['sessions','🌐','سشن‌ها'],['checklist','✅','چک‌لیست / Gate'],['new','➕','معامله جدید'],['positions','📊','پوزیشن‌های باز'],['journal','📒','ژورنال'],['analytics','📈','تحلیل'],['calendar','📅','تقویم'],['news','📰','تقویم خبری'],['plan','🧭','پلن معاملاتی'],['rules','⚖️','قوانین'],['accounts','🏦','حساب‌ها'],['symbols','💱','نمادها'],['review','🔄','بررسی هفتگی'],['settings','⚙️','تنظیمات']];
+const NAV=[['dash','▦','داشبورد'],['sessions','🌐','سشن‌ها'],['checklist','✅','چک‌لیست / Gate'],['new','➕','معامله جدید'],['positions','📊','پوزیشن‌های باز'],['journal','📒','ژورنال'],['analytics','📈','تحلیل'],['calendar','📅','تقویم'],['news','📰','تقویم خبری'],['plan','🧭','پلن معاملاتی'],['rules','⚖️','قوانین'],['accounts','🏦','حساب‌ها'],['symbols','💱','نمادها'],['review','🔄','بررسی هفتگی'],['settings','⚙️','تنظیمات']];
 function buildNav(){$('#side').innerHTML='<div class="hd">TRADING OS</div>'+NAV.map(n=>`<div class="nvi${UI.page===n[0]?' on':''}" data-nav="${n[0]}"><span class="ic">${n[1]}</span>${n[2]}</div>`).join('');}
 function go(p){UI.page=p;buildNav();render();}
 function render(){const m=$('#main');m.innerHTML='';try{(VIEWS[UI.page]||VIEWS.dash)(m);}catch(e){m.innerHTML='<div class="card" style="color:var(--sell)">خطا در نمایش صفحه: '+esc(e.message)+'</div>';}}
@@ -579,12 +576,6 @@ VIEWS.dash=m=>{const list=DB.widgets.filter(w=>w.en).sort((a,b)=>(a.order||0)-(b
  /* [پچ ۱۵] data-newscd برای شمارش معکوس زنده بنر خبر */
  m.innerHTML=`${nh?`<div class="card" style="padding:12px 16px;border-color:${inWin?'rgba(246,70,93,.55)':'var(--line)'}"><div class="row" style="justify-content:space-between"><span>📰 خبر High بعدی: <b>${esc(nh.title)}</b> <span class="pill ltr" style="font-size:10px">${esc(nh.cur||'')}</span>${inWin?' <span class="pill s-r" style="font-size:10px">در پنجره خبر — گیت بسته است</span>':''}</span><span class="row"><b class="bignum ltr" style="font-size:16px" data-newscd="${nh.id}">${fmtDur(nh.at-Date.now())}</b><button class="btn ghost sm" data-nav="news">تقویم ←</button></span></div></div>`:''}
  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(235px,1fr))">${list.map(w=>{const def=WD[w.id];if(!def)return'';return`<div class="stat w${w.w||1}" data-wid="${w.id}">${def.f()}</div>`;}).join('')||'<div class="hint">ویجتی فعال نیست — از تنظیمات فعال کنید</div>'}</div>`;};
-VIEWS.clock=m=>{m.innerHTML=`<div class="card glow"><div class="chd"><h3>🕓 GLOBAL CLOCK</h3><div class="row"><button class="btn ok sm" data-act="clockAdd">+ شهر جدید</button><span class="hint">کشیدن برای تغییر ترتیب</span></div></div>
- <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(225px,1fr))" id="clkGrid">${DB.clocks.map(c=>{const ts=Date.now();return`<div class="stat qcard" draggable="true" data-id="${c.id}"><div class="row" style="justify-content:space-between"><b>${esc(c.name)}</b><span class="row" style="gap:4px"><button class="btn ghost sm" data-act="clockEdit" data-id="${c.id}">✏️</button><button class="btn ghost sm" data-act="clockDel" data-id="${c.id}">🗑</button></span></div>
- <div class="bignum ltr" data-ck="${c.id}" data-p="t" style="font-size:30px">${tzNow(c.tz)}</div>
- <div class="wl mut" data-ck="${c.id}" data-p="d">${esc(dateStr(ts,c.tz))}</div>
- <div class="row" style="margin-top:6px;gap:6px"><span class="pill ltr" style="font-size:10.5px">${esc(gmtLabel(c.tz,ts))}</span>${isDST(c.tz,ts)?'<span class="pill amb" style="font-size:10.5px">☀️ DST</span>':'<span class="pill" style="font-size:10.5px">STD</span>'}</div></div>`;}).join('')}</div></div>`;
- enableDrag($('#clkGrid'),'[data-id]',ids=>{DB.clocks=reorderById(DB.clocks,ids);persist(true);});};
 VIEWS.sessions=m=>{const now=Date.now();
  m.innerHTML=`<div class="card glow"><div class="chd"><h3>📈 SESSION TIMELINE</h3><span class="hint">نمایش بر اساس ${esc(DB.settings.displayTz)}</span></div>${timelineHTML()}</div>
  <div class="card"><div class="chd"><h3>🌐 MARKET SESSIONS — LIVE</h3><button class="btn ok sm" data-act="sessAdd">+ سشن جدید</button></div>
@@ -884,7 +875,7 @@ VIEWS.settings=m=>{const S=DB.settings;
  <div class="row"><button class="btn" data-act="expJson">⬇ Export JSON</button><button class="btn" data-act="impJson">⬆ Import JSON</button><button class="btn warn" data-act="csvAll">⬇ Export All CSV</button></div>
  <div class="hint" style="margin-top:8px">داده‌ها فقط روی دستگاه شما (IndexedDB + localStorage) ذخیره می‌شوند و هیچ‌چیز به سروری ارسال نمی‌شود. Import با اعتبارسنجی انجام می‌شود.</div></div>
  <div class="card" style="border-color:rgba(246,70,93,.4)"><div class="chd"><h3 style="color:var(--sell)">🗑 RESET</h3></div>
- <div class="row">${[['ck','چک‌لیست'],['plan','پلن'],['widgets','ویجت‌ها'],['cols','ستون‌ها'],['rules','قوانین'],['sessions','سشن‌ها'],['clocks','ساعت‌ها'],['symbols','نمادها'],['news','خبرها'],['strikes','سطح‌ها']].map(x=>`<button class="btn warn sm" data-act="resetSec" data-k="${x[0]}">ریست ${x[1]}</button>`).join('')}
+ <div class="row">${[['ck','چک‌لیست'],['plan','پلن'],['widgets','ویجت‌ها'],['cols','ستون‌ها'],['rules','قوانین'],['sessions','سشن‌ها'],['symbols','نمادها'],['news','خبرها'],['strikes','سطح‌ها']].map(x=>`<button class="btn warn sm" data-act="resetSec" data-k="${x[0]}">ریست ${x[1]}</button>`).join('')}
  <button class="btn bad sm" data-act="factory">☠ Factory Reset (حذف کامل)</button></div></div>`;
  enableDrag($('#wdgList'),'.listRow',ids=>{DB.widgets=reorderById(DB.widgets,ids);persist(true);render();});
  enableDrag($('#colList'),'.listRow',ids=>{const rest=DB.cols.filter(c=>!ids.includes(c.id||c.k));const m2=new Map(DB.cols.map(c=>[c.id||c.k,c]));DB.cols=ids.map(i=>m2.get(i)).filter(Boolean).concat(rest);persist(true);});};
@@ -908,10 +899,7 @@ function tradeModal(id){const t=DB.trades.find(x=>x.id===id);if(!t)return;
  show(0);}
 /* ============================ ACTIONS ============================ */
 const ACT={
- clockAdd:()=>formModal('ساعت جدید',[{k:'name',l:'نام'},{k:'tz',l:'Timezone',t:'tz'}],{name:'Custom City',tz:'UTC'},o=>{if(!o.name||!o.tz)return toast('نام و timezone لازم است','err');if(!validTz(o.tz))return toast('Invalid Timezone','err');DB.clocks.push({id:uid(),...o});persist(true);render();}),
- clockEdit:d=>{const c=DB.clocks.find(x=>x.id===d.id);formModal('ویرایش ساعت',[{k:'name',l:'نام'},{k:'tz',l:'Timezone',t:'tz'}],c,o=>{if(!validTz(o.tz))return toast('Invalid Timezone','err');Object.assign(c,o);persist(true);render();});},
- clockDel:d=>{if(!confirm('حذف ساعت؟'))return;DB.clocks=DB.clocks.filter(x=>x.id!==d.id);persist(true);render();},
- sessAdd:()=>sessForm(null),sessEdit:d=>sessForm(DB.sessions.find(x=>x.id===d.id)),
+  sessAdd:()=>sessForm(null),sessEdit:d=>sessForm(DB.sessions.find(x=>x.id===d.id)),
  sessDup:d=>{const s=DB.sessions.find(x=>x.id===d.id);DB.sessions.push({...JSON.parse(JSON.stringify(s)),id:uid(),name:s.name+' Copy'});persist(true);render();},
  sessDel:d=>{if(!confirm('حذف سشن؟'))return;DB.sessions=DB.sessions.filter(x=>x.id!==d.id);persist(true);render();},
  ckAdd:()=>ckForm(null),ckEdit:d=>ckForm(DB.checklist.find(x=>x.id===d.id)),
@@ -1032,7 +1020,7 @@ const ACT={
  colMgr:()=>{go('settings');},
  colAdd:()=>{const v=$('#colNew').value.trim();if(!v)return;const kid=uid();DB.cols.push({id:kid,l:v,k:'cf_'+kid,en:true});DB.customFields.push({id:kid,label:v,type:'text'});persist(true);render();},
  colDel:d=>{DB.cols=DB.cols.filter(c=>c.id!==d.id);DB.customFields=DB.customFields.filter(f=>f.id!==d.id);persist(true);render();},
- resetSec:d=>{const map={ck:()=>{DB.checklist=defaultDB().checklist;DB.answers={};},plan:()=>{DB.plan=defaultDB().plan;},widgets:()=>{DB.widgets=defaultDB().widgets;},cols:()=>{DB.cols=defaultDB().cols;DB.customFields=[];},rules:()=>{DB.rules=defaultDB().rules;},sessions:()=>{DB.sessions=defaultDB().sessions;},clocks:()=>{DB.clocks=defaultDB().clocks;},symbols:()=>{DB.symbols=defaultDB().symbols;},news:()=>{DB.news=defaultDB().news;},strikes:()=>{DB.strikes=defaultDB().strikes;}};
+ resetSec:d=>{const map={ck:()=>{DB.checklist=defaultDB().checklist;DB.answers={};},plan:()=>{DB.plan=defaultDB().plan;},widgets:()=>{DB.widgets=defaultDB().widgets;},cols:()=>{DB.cols=defaultDB().cols;DB.customFields=[];},rules:()=>{DB.rules=defaultDB().rules;},sessions:()=>{DB.sessions=defaultDB().sessions;},symbols:()=>{DB.symbols=defaultDB().symbols;},news:()=>{DB.news=defaultDB().news;},strikes:()=>{DB.strikes=defaultDB().strikes;}};
   if(!confirm('بخش «'+d.k+'» به پیش‌فرض برگردد؟'))return;(map[d.k]||(()=>{}))();persist(true);render();toast('بخش ریست شد','ok');},
  factory:()=>{if(!confirm('همه داده‌ها برای همیشه حذف شود؟'))return;if(!confirm('مطمئنید؟ این عمل بازگشت‌پذیر نیست!'))return;try{localStorage.removeItem(DBN);}catch(e){}idbOpen().then(db=>{try{db.transaction('kv','readwrite').objectStore('kv').clear();}catch(e){}location.reload();});}
 };
@@ -1136,7 +1124,6 @@ function tick(){try{const now=Date.now();const dz=DB.settings.displayTz;
  $('#hLoc').textContent=tzNow(dz);$('#hUtc').textContent=tzNow('UTC');
  const a=activeSessions(now);$('#hSess').textContent=a.length?'🟢 '+a.map(s=>s.name).join(' + '):'🔴 CLOSED';
  const n=nextSession(now);$('#hNext').textContent=n?(n.open?'END '+esc(n.s.name)+' '+fmtDur(n.t-now):'⏳ '+esc(n.s.name)+' '+fmtDur(n.t-now)):'—';
- if(UI.page==='clock')DB.clocks.forEach(c=>{const el=$(`[data-ck="${c.id}"][data-p="t"]`);if(!el)return;el.textContent=tzNow(c.tz);const d=$(`[data-ck="${c.id}"][data-p="d"]`);if(d)d.textContent=dateStr(now,c.tz);});
  if(UI.page==='sessions')DB.sessions.forEach(s=>{const i=sessInfo(s,now);const cd=$(`[data-sid="${s.id}"][data-p="cd"]`);const st=$(`[data-sid="${s.id}"][data-p="st"]`);const sub=$(`[data-sid="${s.id}"][data-p="sub"]`);
   if(cd)cd.textContent=i.open?fmtDur(i.end-now):fmtDur(i.next-now);if(st){st.textContent=i.open?'🟢 OPEN':'🔴 CLOSED';st.className='sta '+(i.open?'s-g':'s-r');}
   if(sub)sub.textContent=i.open?'Remaining — تا پایان':'Opens in — تا شروع';});
