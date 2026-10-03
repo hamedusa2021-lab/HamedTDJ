@@ -18,6 +18,8 @@
 
 @media(max-width:1050px){.sidebar{width:225px;flex-basis:225px}.main{padding:22px}.hero,.clock,.wide,.small{grid-column:span 6}}
 @media(max-width:760px){.app{display:block}.sidebar{width:100%;padding:12px;border-left:0;border-bottom:1px solid var(--line)}.brand{padding-bottom:12px}.nav{display:flex;overflow-x:auto;margin-top:11px}.nav button{white-space:nowrap;flex:0 0 auto;padding:10px 12px}.main{padding:16px 12px}.top{align-items:flex-start}.title{font-size:24px}.online{padding:8px 10px}.dashboard{gap:12px}.hero,.clock,.wide,.small,.workspace.hero{min-height:215px;padding:22px}.hero h2{font-size:22px}.orb{width:92px;height:92px;font-size:27px}.orb:after{width:114px;height:114px}.clock{min-height:230px}.clock-time{font-size:42px}}
+
+.session-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.session{border:1px solid rgba(143,211,199,.14);background:rgba(10,17,13,.78);border-radius:15px;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:.2s}.session-name{font-size:11px;font-weight:800}.session-time{font-size:9px;color:#778b80;direction:ltr}.session-state{font-size:8px;padding:4px 7px;border-radius:999px;border:1px solid rgba(120,140,130,.18);color:#718077;background:rgba(255,255,255,.02)}.session.live{border-color:rgba(101,246,160,.42);background:linear-gradient(135deg,rgba(30,75,53,.45),rgba(10,22,16,.82));box-shadow:0 0 24px rgba(101,246,160,.08)}.session.live .session-state{color:#07130c;background:#65f6a0;border-color:#65f6a0;font-weight:900}.session.live .session-name{color:#dfffee}.session-dot{width:7px;height:7px;border-radius:50%;background:#53635a;display:inline-block;margin-left:5px}.session.live .session-dot{background:#65f6a0;box-shadow:0 0 12px #65f6a0}@media(max-width:760px){.session-bar{grid-template-columns:repeat(2,1fr);gap:8px}.session{padding:9px}.session-time{font-size:8px}}
 </style>
 </head>
 <body>
@@ -37,7 +39,12 @@
 <div><div class="eyebrow" id="eyebrow">HAMED / COMMAND CENTER</div><div class="title" id="title">داشبورد</div><div class="sub" id="sub">مرکز کنترل شخصی و فضای کاری تو</div></div>
 <div class="online"><span class="pulse"></span><span id="onlineText">سیستم آنلاین</span></div>
 </header>
-
+<div class="session-bar" id="sessionBar">
+<div class="session" data-session="sydney"><div><span class="session-dot"></span><span class="session-name">Sydney</span></div><div class="session-time">00:00–09:00</div><span class="session-state">CLOSED</span></div>
+<div class="session" data-session="tokyo"><div><span class="session-dot"></span><span class="session-name">Tokyo</span></div><div class="session-time">00:00–09:00</div><span class="session-state">CLOSED</span></div>
+<div class="session" data-session="london"><div><span class="session-dot"></span><span class="session-name">London</span></div><div class="session-time">08:00–17:00</div><span class="session-state">CLOSED</span></div>
+<div class="session" data-session="newyork"><div><span class="session-dot"></span><span class="session-name">New York</span></div><div class="session-time">13:00–22:00</div><span class="session-state">CLOSED</span></div>
+</div>
 <section class="page active" id="dashboardPage">
 <section class="dashboard">
 <div class="card hero"><div><div class="eyebrow">WELCOME BACK</div><h2>مرکز فرمان <span class="accent">Hamed</span></h2><p>یک فضای شخصی مدرن برای مدیریت ابزارها، پروژه‌ها، ترید و هر چیزی که بعداً به داشبورد اضافه می‌کنیم.</p></div><div class="orb">H</div></div>
@@ -61,7 +68,10 @@ function selectPage(name){nav.forEach(x=>x.classList.toggle('active',x.dataset.p
 nav.forEach(btn=>btn.addEventListener('click',()=>selectPage(btn.dataset.page)));
 const days=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'],months=['ژانویه','فوریه','مارس','آوریل','مه','ژوئن','ژوئیه','اوت','سپتامبر','اکتبر','نوامبر','دسامبر'];
 function updateLondonClock(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,day:'2-digit',month:'2-digit',year:'numeric'}).formatToParts(new Date());const get=t=>parts.find(x=>x.type===t)?.value||'';const d=new Date(Date.UTC(+get('year'),+get('month')-1,+get('day')));document.getElementById('clockTime').textContent=get('hour')+':'+get('minute')+':'+get('second');document.getElementById('clockDate').textContent=days[d.getUTCDay()]+'، '+get('day')+' '+months[+get('month')-1]+' '+get('year')}
-updateLondonClock();setInterval(updateLondonClock,1000);
+function londonMinutes(){const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date());return (+p.find(x=>x.type==='hour').value*60)+(+p.find(x=>x.type==='minute').value)}
+function sessionOpen(min,start,end){return min>=start&&min<end}
+function updateSessions(){const m=londonMinutes();const states={sydney:sessionOpen(m,23*60,24*60)||sessionOpen(m,0,9*60),tokyo:sessionOpen(m,0,9*60),london:sessionOpen(m,8*60,17*60),newyork:sessionOpen(m,13*60,22*60)};document.querySelectorAll('.session').forEach(el=>{const live=states[el.dataset.session];el.classList.toggle('live',live);el.querySelector('.session-state').textContent=live?'OPEN':'CLOSED'})}
+updateLondonClock();updateSessions();setInterval(()=>{updateLondonClock();updateSessions()},1000);
 </script>
 </body>
 </html>
