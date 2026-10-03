@@ -1,0 +1,37 @@
+name: Update Forex Factory Calendar
+
+on:
+  schedule:
+    - cron: '15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-calendar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Forex Factory weekly JSON
+        run: |
+          curl -L --fail --retry 3 --max-time 30             -A "Mozilla/5.0"             "https://nfs.faireconomy.media/ff_calendar_thisweek.json"             -o ff_calendar.json
+          python - <<'PY'
+          import json
+          p="ff_calendar.json"
+          with open(p,encoding="utf-8") as f:
+              data=json.load(f)
+          if not isinstance(data,list):
+              raise SystemExit("Invalid Forex Factory feed")
+          print(f"Loaded {len(data)} events")
+          PY
+
+      - name: Commit updated calendar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ff_calendar.json
+          git diff --cached --quiet || git commit -m "Update Forex Factory calendar"
+          git push
