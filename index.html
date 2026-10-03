@@ -1367,7 +1367,7 @@ function cloudBoot(){
   }catch(e){}
   clBoot(false);
 }
-(async()=>{await loadDB();buildNav();fillAcc();updSnd();render();tick();cloudBoot();})();
+(async()=>{await loadDB();buildNav();fillAcc();updSnd();render();tick();ffLoadCache();ffFetch(false);setInterval(()=>{if(UI.page==='news')ffRenderLive();},1000);setInterval(()=>{ffFetch(false);},FF_CACHE_TTL);cloudBoot();})();
 })();
 </script>
 <script>
