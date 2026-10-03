@@ -1084,6 +1084,7 @@ function dl(name,content,type){const a=document.createElement('a');a.href=URL.cr
 function compress(file,cb,max=1000,q=.72){const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*sc;c.height=img.height*sc;c.getContext('2d').drawImage(img,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',q));};img.onerror=()=>toast('تصویر خوانده نشد','err');img.src=rd.result;};rd.onerror=()=>toast('فایل خوانده نشد','err');rd.readAsDataURL(file);}
 /* ============================ FOREX FACTORY LIVE ============================ */
 const FF_URL='https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+const FF_TEST_YESTERDAY='2026-10-02';
 const FF_CACHE_KEY='tdos_ff_calendar_v1';
 const FF_CACHE_TTL=60*60*1000;
 let FF_DATA=[],FF_LOADING=false,FF_LAST=0;
@@ -1116,6 +1117,9 @@ function ffRenderLive(){
  const data=(FF_DATA||[]).filter(e=>e&&e.date&&Date.parse(e.date));
  const sorted=data.slice().sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
  const upcoming=sorted.filter(e=>Date.parse(e.date)>=now);
+ const yesterdayStart=new Date(FF_TEST_YESTERDAY+'T00:00:00').getTime();
+ const yesterdayEnd=yesterdayStart+86400000;
+ const yesterday=sorted.filter(e=>{const t=Date.parse(e.date);return t>=yesterdayStart&&t<yesterdayEnd;});
  const past=sorted.filter(e=>Date.parse(e.date)<now).slice(-8).reverse();
  if(st){
    if(FF_LOADING)st.textContent='در حال دریافت…';
@@ -1125,6 +1129,8 @@ function ffRenderLive(){
  if(!data.length){box.innerHTML='<div class="hint">داده زنده Forex Factory در دسترس نیست. دکمه بروزرسانی را بزنید.</div>';return;}
  box.innerHTML='<div class="hint" style="margin-bottom:7px">⏭ پیش رو</div>'+
   (upcoming.map(ffRow).join('')||'<div class="hint">خبر آینده‌ای در فید فعلی نیست.</div>')+
+  '<div class="hint" style="margin:12px 0 7px">🧪 دیروز — 2026-10-02 (برای تست نمایش اخبار گذشته)</div>'+
+  (yesterday.map(ffRow).join('')||'<div class="hint">برای تاریخ دیروز داده‌ای در فید فعلی نیست.</div>')+
   '<div class="hint" style="margin:12px 0 7px">⏮ آخرین اخبار گذشته</div>'+
   (past.map(ffRow).join('')||'<div class="hint">—</div>');
 }
