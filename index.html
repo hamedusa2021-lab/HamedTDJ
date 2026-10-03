@@ -780,6 +780,9 @@ VIEWS.news=m=>{
  <div class="row" style="margin-bottom:8px"><span class="wl">پنجره خبر (دقیقه):</span><input id="newsWin" type="number" value="${num(DB.settings.newsWindowMin)}" style="width:90px"><label class="row" style="gap:6px;cursor:pointer;font-size:12px"><input type="checkbox" id="newsBlk" ${DB.settings.newsBlock!==false?'checked':''}> بستن گیت توسط خبر High</label><button class="btn sm" data-act="newsCfg">💾 ذخیره</button></div>
  <div class="card" style="margin:0 0 14px;padding:13px;background:var(--p2);border-color:var(--line2)">
   <div class="chd" style="margin-bottom:8px"><h3>🟢 FOREX FACTORY — LIVE</h3><div class="row">
+   <button class="btn sm" data-act="ffYesterday">⏮ دیروز</button>
+   <button class="btn sm" data-act="ffThisWeek">⏭ این هفته</button>
+   <a class="btn sm" href="https://www.forexfactory.com/calendar?week=next" target="_blank" rel="noopener">⏭ هفته آینده ↗</a>
    <span id="ffStatus" class="pill">در حال دریافت…</span>
    <button class="btn sm" data-act="ffRefresh">🔄 بروزرسانی</button>
    <a class="btn sm ghost" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener">↗ Forex Factory</a>
@@ -895,6 +898,9 @@ function tradeModal(id){const t=DB.trades.find(x=>x.id===id);if(!t)return;
  show(0);}
 /* ============================ ACTIONS ============================ */
 const ACT={
+  ffRefresh:()=>ffFetch(true),
+  ffYesterday:()=>{FF_VIEW='yesterday';ffRenderLive();},
+  ffThisWeek:()=>{FF_VIEW='upcoming';ffRenderLive();},
   sessAdd:()=>sessForm(null),sessEdit:d=>sessForm(DB.sessions.find(x=>x.id===d.id)),
  sessDup:d=>{const s=DB.sessions.find(x=>x.id===d.id);DB.sessions.push({...JSON.parse(JSON.stringify(s)),id:uid(),name:s.name+' Copy'});persist(true);render();},
  sessDel:d=>{if(!confirm('حذف سشن؟'))return;DB.sessions=DB.sessions.filter(x=>x.id!==d.id);persist(true);render();},
@@ -1084,7 +1090,8 @@ function dl(name,content,type){const a=document.createElement('a');a.href=URL.cr
 function compress(file,cb,max=1000,q=.72){const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*sc;c.height=img.height*sc;c.getContext('2d').drawImage(img,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',q));};img.onerror=()=>toast('تصویر خوانده نشد','err');img.src=rd.result;};rd.onerror=()=>toast('فایل خوانده نشد','err');rd.readAsDataURL(file);}
 /* ============================ FOREX FACTORY LIVE ============================ */
 const FF_URL='https://nfs.faireconomy.media/ff_calendar_thisweek.json';
-const FF_TEST_YESTERDAY='2026-10-02';
+const FF_TEST_YESTERDAY=null;
+let FF_VIEW='upcoming';
 const FF_CACHE_KEY='tdos_ff_calendar_v1';
 const FF_CACHE_TTL=60*60*1000;
 let FF_DATA=[],FF_LOADING=false,FF_LAST=0;
@@ -1117,9 +1124,15 @@ function ffRenderLive(){
  const data=(FF_DATA||[]).filter(e=>e&&e.date&&Date.parse(e.date));
  const sorted=data.slice().sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
  const upcoming=sorted.filter(e=>Date.parse(e.date)>=now);
- const yesterdayStart=new Date(FF_TEST_YESTERDAY+'T00:00:00').getTime();
- const yesterdayEnd=yesterdayStart+86400000;
+ const baseNow=new Date(now);
+ const y0=new Date(baseNow.getFullYear(),baseNow.getMonth(),baseNow.getDate()-1); y0.setHours(0,0,0,0);
+ const yesterdayStart=y0.getTime(),yesterdayEnd=yesterdayStart+86400000;
  const yesterday=sorted.filter(e=>{const t=Date.parse(e.date);return t>=yesterdayStart&&t<yesterdayEnd;});
+ const weekStart=new Date(baseNow); weekStart.setHours(0,0,0,0); weekStart.setDate(weekStart.getDate()-weekStart.getDay());
+ const nextStart=new Date(weekStart); nextStart.setDate(nextStart.getDate()+7);
+ const nextEnd=new Date(nextStart); nextEnd.setDate(nextEnd.getDate()+7);
+ const nextWeek=sorted.filter(e=>{const t=Date.parse(e.date);return t>=nextStart.getTime()&&t<nextEnd.getTime();});
+ const viewRows=FF_VIEW==='yesterday'?yesterday:(FF_VIEW==='nextweek'?nextWeek:upcoming);
  const past=sorted.filter(e=>Date.parse(e.date)<now).slice(-8).reverse();
  if(st){
    if(FF_LOADING)st.textContent='در حال دریافت…';
@@ -1127,10 +1140,11 @@ function ffRenderLive(){
    else st.textContent='بدون داده';
  }
  if(!data.length){box.innerHTML='<div class="hint">داده زنده Forex Factory در دسترس نیست. دکمه بروزرسانی را بزنید.</div>';return;}
- box.innerHTML='<div class="hint" style="margin-bottom:7px">⏭ پیش رو</div>'+
-  (upcoming.map(ffRow).join('')||'<div class="hint">خبر آینده‌ای در فید فعلی نیست.</div>')+
-  '<div class="hint" style="margin:12px 0 7px">🧪 دیروز — 2026-10-02 (برای تست نمایش اخبار گذشته)</div>'+
-  (yesterday.map(ffRow).join('')||'<div class="hint">برای تاریخ دیروز داده‌ای در فید فعلی نیست.</div>')+
+ const yLabel=y0.toISOString().slice(0,10);
+ const nLabel=nextStart.toISOString().slice(0,10)+' → '+new Date(nextEnd.getTime()-1).toISOString().slice(0,10);
+ const title=FF_VIEW==='yesterday'?'⏮ دیروز — '+yLabel:(FF_VIEW==='nextweek'?'⏭ هفته آینده — '+nLabel:'⏭ این هفته / پیش رو');
+ box.innerHTML='<div class="hint" style="margin-bottom:7px">'+title+'</div>'+
+  (viewRows.map(ffRow).join('')||'<div class="hint">برای این بازه در فید فعلی داده‌ای نیست.</div>')+
   '<div class="hint" style="margin:12px 0 7px">⏮ آخرین اخبار گذشته</div>'+
   (past.map(ffRow).join('')||'<div class="hint">—</div>');
 }
