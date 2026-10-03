@@ -324,7 +324,7 @@ window.addEventListener('error',e=>{try{toast('خطا: '+(e.message||'نامشخ
 window.addEventListener('unhandledrejection',()=>{});
 /* ============================ UI STATE / ROUTER ============================ */
 const UI={page:'dash',editTrade:null,calM:null,anaDim:'symbol',anaRange:'day',jq:{k:'closedAt',d:-1},ovr:false,ovrReason:'',ack:{},week:null,stkSym:'',ss:[]};
-const NAV=[['dash','▦','داشبورد'],['sessions','🌐','سشن‌ها'],['checklist','✅','چک‌لیست / Gate'],['new','➕','معامله جدید'],['positions','📊','پوزیشن‌های باز'],['journal','📒','ژورنال'],['analytics','📈','تحلیل'],['calendar','📅','تقویم'],['news','📰','تقویم خبری'],['plan','🧭','پلن معاملاتی'],['rules','⚖️','قوانین'],['accounts','🏦','حساب‌ها'],['symbols','💱','نمادها'],['review','🔄','بررسی هفتگی'],['settings','⚙️','تنظیمات']];
+const NAV=[['dash','▦','داشبورد'],['checklist','✅','چک‌لیست / Gate'],['new','➕','معامله جدید'],['positions','📊','پوزیشن‌های باز'],['journal','📒','ژورنال'],['analytics','📈','تحلیل'],['calendar','📅','تقویم'],['news','📰','تقویم خبری'],['plan','🧭','پلن معاملاتی'],['rules','⚖️','قوانین'],['accounts','🏦','حساب‌ها'],['symbols','💱','نمادها'],['review','🔄','بررسی هفتگی'],['settings','⚙️','تنظیمات']];
 function buildNav(){$('#side').innerHTML='<div class="hd">TRADING OS</div>'+NAV.map(n=>`<div class="nvi${UI.page===n[0]?' on':''}" data-nav="${n[0]}"><span class="ic">${n[1]}</span>${n[2]}</div>`).join('');}
 function go(p){UI.page=p;buildNav();render();}
 function render(){const m=$('#main');m.innerHTML='';try{(VIEWS[UI.page]||VIEWS.dash)(m);}catch(e){m.innerHTML='<div class="card" style="color:var(--sell)">خطا در نمایش صفحه: '+esc(e.message)+'</div>';}}
@@ -576,22 +576,6 @@ VIEWS.dash=m=>{const list=DB.widgets.filter(w=>w.en).sort((a,b)=>(a.order||0)-(b
  /* [پچ ۱۵] data-newscd برای شمارش معکوس زنده بنر خبر */
  m.innerHTML=`${nh?`<div class="card" style="padding:12px 16px;border-color:${inWin?'rgba(246,70,93,.55)':'var(--line)'}"><div class="row" style="justify-content:space-between"><span>📰 خبر High بعدی: <b>${esc(nh.title)}</b> <span class="pill ltr" style="font-size:10px">${esc(nh.cur||'')}</span>${inWin?' <span class="pill s-r" style="font-size:10px">در پنجره خبر — گیت بسته است</span>':''}</span><span class="row"><b class="bignum ltr" style="font-size:16px" data-newscd="${nh.id}">${fmtDur(nh.at-Date.now())}</b><button class="btn ghost sm" data-nav="news">تقویم ←</button></span></div></div>`:''}
  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(235px,1fr))">${list.map(w=>{const def=WD[w.id];if(!def)return'';return`<div class="stat w${w.w||1}" data-wid="${w.id}">${def.f()}</div>`;}).join('')||'<div class="hint">ویجتی فعال نیست — از تنظیمات فعال کنید</div>'}</div>`;};
-VIEWS.sessions=m=>{const now=Date.now();
- m.innerHTML=`<div class="card glow"><div class="chd"><h3>📈 SESSION TIMELINE</h3><span class="hint">نمایش بر اساس ${esc(DB.settings.displayTz)}</span></div>${timelineHTML()}</div>
- <div class="card"><div class="chd"><h3>🌐 MARKET SESSIONS — LIVE</h3><button class="btn ok sm" data-act="sessAdd">+ سشن جدید</button></div>
- <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(270px,1fr))">${DB.sessions.map(s=>{const i=sessInfo(s,now);const dst=isDST(s.tz,now);
-  return`<div class="qcard ckcard" style="border-inline-start:3px solid ${s.color};${!s.en?'opacity:.5':''}">
-  <div class="row" style="justify-content:space-between"><b><span class="dot" style="background:${s.color}"></span> ${esc(s.name)}</b>
-  <span class="row" style="gap:2px"><button class="btn ghost sm" data-act="sessEdit" data-id="${s.id}">✏️</button><button class="btn ghost sm" data-act="sessDup" data-id="${s.id}">⧉</button><button class="btn ghost sm" data-act="sessDel" data-id="${s.id}">🗑</button></span></div>
-  <div class="row" style="justify-content:space-between;margin:8px 0"><span class="sta ${i.open?'s-g':'s-r'}" data-sid="${s.id}" data-p="st">${i.open?'🟢 OPEN':'🔴 CLOSED'}</span>
-  <span class="bignum ltr" data-sid="${s.id}" data-p="cd" style="font-size:18px">${i.open?fmtDur(i.end-now):fmtDur(i.next-now)}</span></div>
-  <div class="wl mut" data-sid="${s.id}" data-p="sub">${i.open?'Remaining — تا پایان':'Opens in — تا شروع'}</div>
-  <div class="sep"></div><div class="kv" style="grid-template-columns:1fr 1fr;gap:6px;font-size:11.5px">
-  <div><span class="k">Local now</span><span class="v ltr">${tzNow(s.tz)}</span></div>
-  <div><span class="k">Start/End</span><span class="v ltr">${s.open}-${s.close}</span></div>
-  <div><span class="k">TZ</span><span class="v ltr" style="font-size:10px">${esc(s.tz)}</span></div>
-  <div><span class="k">DST</span><span class="v">${dst?'☀️ فعال':'❄️ استاندارد'}</span></div></div>
-  <div class="wl mut" style="margin-top:6px">روزها: ${(s.days||[]).map(d=>DOW[d].slice(0,3)).join('، ')||'—'}</div></div>`;}).join('')}</div></div>`;};
 VIEWS.checklist=m=>{const g=gateEval();
  m.innerHTML=`<div class="card glow"><div id="gatePanel">${gatePanelHTML(g)}</div></div>
  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:14px">
@@ -1124,9 +1108,6 @@ function tick(){try{const now=Date.now();const dz=DB.settings.displayTz;
  $('#hLoc').textContent=tzNow(dz);$('#hUtc').textContent=tzNow('UTC');
  const a=activeSessions(now);$('#hSess').textContent=a.length?'🟢 '+a.map(s=>s.name).join(' + '):'🔴 CLOSED';
  const n=nextSession(now);$('#hNext').textContent=n?(n.open?'END '+esc(n.s.name)+' '+fmtDur(n.t-now):'⏳ '+esc(n.s.name)+' '+fmtDur(n.t-now)):'—';
- if(UI.page==='sessions')DB.sessions.forEach(s=>{const i=sessInfo(s,now);const cd=$(`[data-sid="${s.id}"][data-p="cd"]`);const st=$(`[data-sid="${s.id}"][data-p="st"]`);const sub=$(`[data-sid="${s.id}"][data-p="sub"]`);
-  if(cd)cd.textContent=i.open?fmtDur(i.end-now):fmtDur(i.next-now);if(st){st.textContent=i.open?'🟢 OPEN':'🔴 CLOSED';st.className='sta '+(i.open?'s-g':'s-r');}
-  if(sub)sub.textContent=i.open?'Remaining — تا پایان':'Opens in — تا شروع';});
  if(UI.page==='dash'){DB.widgets.filter(w=>w.en&&WD[w.id]?.live).forEach(w=>{const el=$(`[data-wid="${w.id}"]`);if(el)el.innerHTML=WD[w.id].f();});
   /* [پچ ۱۵] شمارش معکوس زنده بنر خبر داشبورد */
   const ncd=$('[data-newscd]');if(ncd){const ev=DB.news.find(x=>x.id===ncd.dataset.newscd);ncd.textContent=ev?fmtDur(ev.at-now):'—';}}
