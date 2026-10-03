@@ -787,11 +787,10 @@ VIEWS.news=m=>{
   <a class="btn sm ghost" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener">↗ Forex Factory</a>
 </div>
  <div class="sep" style="margin:10px 0 12px"></div>
- <div class="chd" style="margin-bottom:8px"><h3>🟢 FOREX FACTORY — LIVE</h3><div class="row">
+ <div class="row" style="margin-bottom:7px">
    <span id="ffStatus" class="pill">در حال دریافت…</span>
-   <button class="btn sm" data-act="ffRefresh">🔄 بروزرسانی</button>
-  </div></div>
- <div class="hint" style="margin-bottom:9px">اخبار این بخش مستقیماً از فید هفتگی Forex Factory دریافت می‌شوند و هر ۶۰ دقیقه تازه‌سازی می‌شوند.</div>
+   <span class="hint">اخبار زنده Forex Factory</span>
+ </div>
  <div id="ffLiveList"><div class="hint">در حال دریافت اخبار Forex Factory…</div></div>
  <h3 style="font-size:13px;margin:6px 0">⏭ پیش رو</h3>${fut.map(row).join('')||'<div class="hint">رویدادی ثبت نشده.</div>'}
  <h3 style="font-size:13px;margin:14px 0 6px">⏮ گذشته</h3>${past.map(row).join('')||'<div class="hint">—</div>'}</div>`;
@@ -1111,12 +1110,14 @@ function ffRow(e){
  const left=at-now;
  const near=left>=0&&left<=num(DB.settings.newsWindowMin)*6e4&&ffNormImpact(e.impact)==='high';
  const live=left>=0;
+ const actual=e.actual??e.Actual??'',forecast=e.forecast??e.Forecast??'',previous=e.previous??e.Previous??'';
+ const vals=[actual?'<b>Actual:</b> <b class="ltr">'+esc(actual)+'</b>':'',forecast?'<b>Forecast:</b> <b class="ltr">'+esc(forecast)+'</b>':'',previous?'<b>Previous:</b> <b class="ltr">'+esc(previous)+'</b>':''].filter(Boolean).join(' · ');
  return `<div class="listRow" style="${near?'border-color:var(--sell);box-shadow:0 0 12px rgba(246,70,93,.08)':''}">
   <span style="font-size:16px">${im[0]}</span>
   <span class="ltr" style="width:52px;text-align:center;font-weight:700">${esc(e.country||'')}</span>
   <span style="flex:1;min-width:0"><b>${esc(e.title||'')}</b> <span class="pill ${im[2]}" style="font-size:10px">${im[1]}</span>
    ${near?'<span class="pill s-r" style="font-size:10px">⚠️ گیت بسته</span>':''}
-   ${e.forecast?'<div class="hint">Forecast: <b class="ltr">'+esc(e.forecast)+'</b>'+(e.previous?' · Previous: <b class="ltr">'+esc(e.previous)+'</b>':'')+'</div>':(e.previous?'<div class="hint">Previous: <b class="ltr">'+esc(e.previous)+'</b></div>':'')}
+   ${vals?'<div class="hint">'+vals+'</div>':''}
   </span>
   <span class="ltr mut" style="white-space:nowrap">${dateStr(at,DB.settings.displayTz)} ${timeStr(at,DB.settings.displayTz)}</span>
   ${live?`<b class="bignum ltr" style="font-size:13px;min-width:88px;text-align:left">${fmtDur(left)}</b>`: '<span class="pill" style="font-size:10px">گذشته</span>'}
