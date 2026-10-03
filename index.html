@@ -778,14 +778,18 @@ VIEWS.news=m=>{
  m.innerHTML=`<div class="card glow"><div class="chd"><h3>📰 ECONOMIC CALENDAR</h3><button class="btn ok sm" data-act="newsAdd">+ رویداد جدید</button></div>
  <div class="hint" style="margin-bottom:10px">رویدادهای <b>High</b> که در بازهٔ ±${num(DB.settings.newsWindowMin)} دقیقه باشند، گیت را می‌بندند (ENTRY FORBIDDEN) مگر با Override. زمان‌ها به وقت ${esc(dz)} و با رعایت DST محاسبه می‌شوند.</div>
  <div class="row" style="margin-bottom:8px"><span class="wl">پنجره خبر (دقیقه):</span><input id="newsWin" type="number" value="${num(DB.settings.newsWindowMin)}" style="width:90px"><label class="row" style="gap:6px;cursor:pointer;font-size:12px"><input type="checkbox" id="newsBlk" ${DB.settings.newsBlock!==false?'checked':''}> بستن گیت توسط خبر High</label><button class="btn sm" data-act="newsCfg">💾 ذخیره</button></div>
+ <div class="row" style="margin:0 0 12px;padding:10px;background:var(--p2);border:1px solid var(--line2);border-radius:10px">
+  <b style="font-size:12px">نمایش اخبار Forex Factory:</b>
+  <button id="ffYesterday" class="btn sm" data-act="ffYesterday">⏮ دیروز</button>
+  <button id="ffThisWeek" class="btn sm" data-act="ffThisWeek">⏭ این هفته</button>
+  <button id="ffNextWeek" class="btn sm" data-act="ffNextWeek">⏭ هفته آینده</button>
+  <button class="btn sm" data-act="ffRefresh">🔄 بروزرسانی</button>
+  <a class="btn sm ghost" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener">↗ Forex Factory</a>
+</div>
  <div class="card" style="margin:0 0 14px;padding:13px;background:var(--p2);border-color:var(--line2)">
   <div class="chd" style="margin-bottom:8px"><h3>🟢 FOREX FACTORY — LIVE</h3><div class="row">
-   <button class="btn sm" data-act="ffYesterday">⏮ دیروز</button>
-   <button class="btn sm" data-act="ffThisWeek">⏭ این هفته</button>
-   <a class="btn sm" href="https://www.forexfactory.com/calendar?week=next" target="_blank" rel="noopener">⏭ هفته آینده ↗</a>
    <span id="ffStatus" class="pill">در حال دریافت…</span>
    <button class="btn sm" data-act="ffRefresh">🔄 بروزرسانی</button>
-   <a class="btn sm ghost" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener">↗ Forex Factory</a>
   </div></div>
   <div class="hint" style="margin-bottom:9px">اخبار این بخش مستقیماً از فید هفتگی Forex Factory دریافت می‌شوند و هر ۶۰ دقیقه تازه‌سازی می‌شوند. ساختار اخبار دستی بالا بدون تغییر باقی می‌ماند.</div>
   <div id="ffLiveList"><div class="hint">در حال دریافت اخبار Forex Factory…</div></div>
@@ -901,6 +905,7 @@ const ACT={
   ffRefresh:()=>ffFetch(true),
   ffYesterday:()=>{FF_VIEW='yesterday';ffRenderLive();},
   ffThisWeek:()=>{FF_VIEW='upcoming';ffRenderLive();},
+  ffNextWeek:()=>{FF_VIEW='nextweek';ffRenderLive();},
   sessAdd:()=>sessForm(null),sessEdit:d=>sessForm(DB.sessions.find(x=>x.id===d.id)),
  sessDup:d=>{const s=DB.sessions.find(x=>x.id===d.id);DB.sessions.push({...JSON.parse(JSON.stringify(s)),id:uid(),name:s.name+' Copy'});persist(true);render();},
  sessDel:d=>{if(!confirm('حذف سشن؟'))return;DB.sessions=DB.sessions.filter(x=>x.id!==d.id);persist(true);render();},
@@ -1120,31 +1125,36 @@ function ffRow(e){
 }
 function ffRenderLive(){
  const box=document.getElementById('ffLiveList'),st=document.getElementById('ffStatus');if(!box)return;
- const now=Date.now();
+ const now=Date.now(),tz=DB.settings.displayTz||'UTC';
  const data=(FF_DATA||[]).filter(e=>e&&e.date&&Date.parse(e.date));
  const sorted=data.slice().sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
+ const key=t=>{try{const p=zParts(t,tz);return p.y+'-'+pad(p.mo)+'-'+pad(p.d);}catch(e){return new Date(t).toISOString().slice(0,10);}};
+ const nowKey=key(now);
+ const shiftDay=(base,n)=>{const d=new Date(base);d.setDate(d.getDate()+n);return d;};
+ const todayParts=zParts(now,tz);
+ const localMidnight=new Date(todayParts.y,todayParts.mo-1,todayParts.d);
+ const yesterdayKey=key(localMidnight.getTime()-86400000);
+ const dayNum=localMidnight.getDay();
+ const weekStart=new Date(localMidnight);weekStart.setDate(weekStart.getDate()-dayNum);
+ const nextStart=new Date(weekStart);nextStart.setDate(nextStart.getDate()+7);
+ const nextEnd=new Date(nextStart);nextEnd.setDate(nextEnd.getDate()+7);
+ const nextStartKey=key(nextStart.getTime()),nextEndKey=key(nextEnd.getTime());
+ const yesterday=sorted.filter(e=>key(Date.parse(e.date))===yesterdayKey);
  const upcoming=sorted.filter(e=>Date.parse(e.date)>=now);
- const baseNow=new Date(now);
- const y0=new Date(baseNow.getFullYear(),baseNow.getMonth(),baseNow.getDate()-1); y0.setHours(0,0,0,0);
- const yesterdayStart=y0.getTime(),yesterdayEnd=yesterdayStart+86400000;
- const yesterday=sorted.filter(e=>{const t=Date.parse(e.date);return t>=yesterdayStart&&t<yesterdayEnd;});
- const weekStart=new Date(baseNow); weekStart.setHours(0,0,0,0); weekStart.setDate(weekStart.getDate()-weekStart.getDay());
- const nextStart=new Date(weekStart); nextStart.setDate(nextStart.getDate()+7);
- const nextEnd=new Date(nextStart); nextEnd.setDate(nextEnd.getDate()+7);
- const nextWeek=sorted.filter(e=>{const t=Date.parse(e.date);return t>=nextStart.getTime()&&t<nextEnd.getTime();});
+ const nextWeek=sorted.filter(e=>{const k=key(Date.parse(e.date));return k>=nextStartKey&&k<nextEndKey;});
  const viewRows=FF_VIEW==='yesterday'?yesterday:(FF_VIEW==='nextweek'?nextWeek:upcoming);
  const past=sorted.filter(e=>Date.parse(e.date)<now).slice(-8).reverse();
  if(st){
    if(FF_LOADING)st.textContent='در حال دریافت…';
-   else if(FF_LAST)st.textContent='آخرین بروزرسانی: '+timeStr(FF_LAST,DB.settings.displayTz);
+   else if(FF_LAST)st.textContent='آخرین بروزرسانی: '+timeStr(FF_LAST,tz);
    else st.textContent='بدون داده';
  }
+ ['ffYesterday','ffThisWeek','ffNextWeek'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.toggle('ok',id==='ffYesterday'&&FF_VIEW==='yesterday'||id==='ffThisWeek'&&FF_VIEW==='upcoming'||id==='ffNextWeek'&&FF_VIEW==='nextweek');});
  if(!data.length){box.innerHTML='<div class="hint">داده زنده Forex Factory در دسترس نیست. دکمه بروزرسانی را بزنید.</div>';return;}
- const yLabel=y0.toISOString().slice(0,10);
- const nLabel=nextStart.toISOString().slice(0,10)+' → '+new Date(nextEnd.getTime()-1).toISOString().slice(0,10);
- const title=FF_VIEW==='yesterday'?'⏮ دیروز — '+yLabel:(FF_VIEW==='nextweek'?'⏭ هفته آینده — '+nLabel:'⏭ این هفته / پیش رو');
+ const title=FF_VIEW==='yesterday'?'⏮ دیروز — '+yesterdayKey:(FF_VIEW==='nextweek'?'⏭ هفته آینده — '+nextStartKey+' → '+key(nextEnd.getTime()-86400000):'⏭ این هفته / پیش رو');
+ const empty=FF_VIEW==='nextweek'?'برای هفته آینده در فید فعلی Forex Factory داده‌ای موجود نیست. فید فعلی فقط هفته جاری را پوشش می‌دهد.':FF_VIEW==='yesterday'?'برای دیروز در فید فعلی Forex Factory داده‌ای پیدا نشد.':'برای این بازه در فید فعلی داده‌ای نیست.';
  box.innerHTML='<div class="hint" style="margin-bottom:7px">'+title+'</div>'+
-  (viewRows.map(ffRow).join('')||'<div class="hint">برای این بازه در فید فعلی داده‌ای نیست.</div>')+
+  (viewRows.map(ffRow).join('')||'<div class="hint">'+empty+'</div>')+
   '<div class="hint" style="margin:12px 0 7px">⏮ آخرین اخبار گذشته</div>'+
   (past.map(ffRow).join('')||'<div class="hint">—</div>');
 }
