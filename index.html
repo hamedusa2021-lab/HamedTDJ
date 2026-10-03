@@ -1092,7 +1092,7 @@ function csvExport(ts){const rows=[['Date','Time','Symbol','Dir','Strategy','Set
 function dl(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
 function compress(file,cb,max=1000,q=.72){const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*sc;c.height=img.height*sc;c.getContext('2d').drawImage(img,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',q));};img.onerror=()=>toast('تصویر خوانده نشد','err');img.src=rd.result;};rd.onerror=()=>toast('فایل خوانده نشد','err');rd.readAsDataURL(file);}
 /* ============================ FOREX FACTORY LIVE ============================ */
-const FF_URL='https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+const FF_URL='https://r.jina.ai/http://nfs.faireconomy.media/ff_calendar_thisweek.json';
 const FF_TEST_YESTERDAY=null;
 let FF_VIEW='upcoming';
 const FF_CACHE_KEY='tdos_ff_calendar_v1';
