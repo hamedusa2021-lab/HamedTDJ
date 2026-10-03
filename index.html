@@ -116,7 +116,23 @@
 }
 <style>
 .checklist-wrap{display:grid;gap:14px}.checklist-gate,.checklist-section{border:1px solid rgba(143,211,199,.14);border-radius:14px;background:linear-gradient(145deg,rgba(12,21,16,.92),rgba(6,11,8,.97));overflow:hidden}.checklist-gate-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid rgba(143,211,199,.08)}.checklist-gate-title{font-size:16px;font-weight:900;color:#e8fff2}.checklist-status{font-size:12px;font-weight:900;padding:7px 12px;border-radius:8px;background:rgba(245,208,111,.1);color:#f5d06f}.checklist-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:14px}.checklist-card{border:1px solid rgba(143,211,199,.12);border-radius:12px;background:rgba(255,255,255,.018);padding:13px;min-height:130px}.checklist-card-title,.checklist-section-title{font-size:13px;font-weight:850;color:#dfffee;margin-bottom:9px}.checklist-placeholder,.checklist-rule-placeholder{font-size:11px;line-height:1.8;color:#718179}.checklist-section{padding:13px}.checklist-rule-placeholder{border:1px dashed rgba(143,211,199,.16);border-radius:8px;padding:11px}@media(max-width:900px){.checklist-grid{grid-template-columns:1fr}}
-</style></style>
+<style id="checklist-standalone-style">
+#checklistPage{background:linear-gradient(135deg,#07110d 0%,#0b1712 52%,#06100c 100%)!important;border:1px solid rgba(101,246,160,.10);border-radius:18px;padding:20px!important;min-height:calc(100vh - 120px);box-shadow:inset 0 0 80px rgba(101,246,160,.025)}
+#checklistPage .checklist-wrap{max-width:1180px;margin:0 auto;gap:16px}
+#checklistPage .checklist-gate{border:1px solid rgba(101,246,160,.20);background:rgba(5,14,10,.72);box-shadow:0 12px 35px rgba(0,0,0,.18)}
+#checklistPage .checklist-gate-head{padding:18px 20px;background:linear-gradient(90deg,rgba(101,246,160,.055),transparent)}
+#checklistPage .checklist-gate-title{font-size:19px;letter-spacing:1.2px}
+#checklistPage .checklist-status{font-size:11px;letter-spacing:.5px}
+#checklistPage .checklist-grid{grid-template-columns:repeat(3,1fr);padding:16px;gap:14px}
+#checklistPage .checklist-card{min-height:150px;padding:16px;border-radius:13px;background:rgba(255,255,255,.018);transition:.2s}
+#checklistPage .checklist-card:hover{border-color:rgba(101,246,160,.24);transform:translateY(-1px)}
+#checklistPage .checklist-card-title{font-size:14px;margin-bottom:12px}
+#checklistPage .checklist-placeholder{font-size:11px;color:#81938a}
+#checklistPage .checklist-section{padding:16px;background:rgba(5,14,10,.62);border-color:rgba(143,211,199,.13)}
+#checklistPage .checklist-section-title{font-size:14px;margin-bottom:11px}
+#checklistPage .checklist-rule-placeholder{font-size:11px;background:rgba(255,255,255,.012)}
+@media(max-width:900px){#checklistPage .checklist-grid{grid-template-columns:1fr}#checklistPage{padding:12px!important}}
+</style></style></style>
 </head>
 <body>
 <div class="app">
