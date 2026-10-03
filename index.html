@@ -136,6 +136,7 @@ setAxis();updateLondonClock();updateSessions();setInterval(()=>{updateLondonCloc
 </script>
 <script>
 const NEWS_URL='https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+const NEWS_REFRESH_MS=30*60*1000;
 let newsItems=JSON.parse(localStorage.getItem('hamed_news')||'[]'),onlineNews=[],soundEnabled=false,alerted={};
 const newsList=document.getElementById('newsList');
 const impactMap={High:'high',Medium:'medium',Low:'low',Holiday:'low'};
@@ -150,6 +151,6 @@ document.getElementById('addNewsBtn').onclick=()=>document.getElementById('newsF
 document.getElementById('soundBtn').onclick=()=>{soundEnabled=!soundEnabled;const b=document.getElementById('soundBtn');b.textContent=soundEnabled?'🔊 صدا فعال':'🔇 صدا';b.classList.toggle('sound-on',soundEnabled);if(soundEnabled)speak('News alerts enabled')};
 document.getElementById('saveNews').onclick=()=>{const title=document.getElementById('manualTitle').value.trim(),country=document.getElementById('manualCurrency').value.trim().toUpperCase(),date=document.getElementById('manualDate').value,priority=document.getElementById('manualPriority').value;if(!title||!country||!date)return;newsItems.push({id:'m-'+Date.now(),title,country,date:new Date(date).toISOString(),priority,manual:true});saveNews();renderNews();document.getElementById('newsForm').classList.remove('show');document.getElementById('manualTitle').value='';document.getElementById('manualCurrency').value='';document.getElementById('manualDate').value=''};
 document.getElementById('newsPriorityFilter').onchange=renderNews;document.getElementById('newsCurrencyFilter').onchange=renderNews;
-renderNews();loadOnlineNews();setInterval(checkNewsAlerts,1000);
+renderNews();loadOnlineNews();setInterval(checkNewsAlerts,1000);setInterval(loadOnlineNews,NEWS_REFRESH_MS);
 </script></body>
 </html>
