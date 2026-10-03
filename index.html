@@ -763,7 +763,8 @@ VIEWS.calendar=m=>{if(!UI.calM){const p=zParts(Date.now(),DB.settings.displayTz)
  <div class="cal">${DOW.map(d=>`<div class="calh">${d}</div>`).join('')}</div>
  <div class="cal" style="margin-top:6px">${cells.join('')}</div>
  <div class="hint" style="margin-top:10px">روی هر روز کلیک کنید تا جزئیات معاملات آن روز نمایش داده شود.</div></div>`;};
-VIEWS.news=m=>{const now=Date.now();const dz=DB.settings.displayTz;
+VIEWS.news=m=>{
+ const now=Date.now(),dz=DB.settings.displayTz;
  const evs=[...DB.news].sort((a,b)=>a.at-b.at);
  const fut=evs.filter(e=>e.at>=now),past=evs.filter(e=>e.at<now).slice(-20).reverse();
  const row=e=>{const im=IMP[e.impact]||IMP.low;const near=e.at>=now&&(e.at-now)<=num(DB.settings.newsWindowMin)*6e4;
@@ -777,8 +778,19 @@ VIEWS.news=m=>{const now=Date.now();const dz=DB.settings.displayTz;
  m.innerHTML=`<div class="card glow"><div class="chd"><h3>📰 ECONOMIC CALENDAR</h3><button class="btn ok sm" data-act="newsAdd">+ رویداد جدید</button></div>
  <div class="hint" style="margin-bottom:10px">رویدادهای <b>High</b> که در بازهٔ ±${num(DB.settings.newsWindowMin)} دقیقه باشند، گیت را می‌بندند (ENTRY FORBIDDEN) مگر با Override. زمان‌ها به وقت ${esc(dz)} و با رعایت DST محاسبه می‌شوند.</div>
  <div class="row" style="margin-bottom:8px"><span class="wl">پنجره خبر (دقیقه):</span><input id="newsWin" type="number" value="${num(DB.settings.newsWindowMin)}" style="width:90px"><label class="row" style="gap:6px;cursor:pointer;font-size:12px"><input type="checkbox" id="newsBlk" ${DB.settings.newsBlock!==false?'checked':''}> بستن گیت توسط خبر High</label><button class="btn sm" data-act="newsCfg">💾 ذخیره</button></div>
+ <div class="card" style="margin:0 0 14px;padding:13px;background:var(--p2);border-color:var(--line2)">
+  <div class="chd" style="margin-bottom:8px"><h3>🟢 FOREX FACTORY — LIVE</h3><div class="row">
+   <span id="ffStatus" class="pill">در حال دریافت…</span>
+   <button class="btn sm" data-act="ffRefresh">🔄 بروزرسانی</button>
+   <a class="btn sm ghost" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener">↗ Forex Factory</a>
+  </div></div>
+  <div class="hint" style="margin-bottom:9px">اخبار این بخش مستقیماً از فید هفتگی Forex Factory دریافت می‌شوند و هر ۶۰ دقیقه تازه‌سازی می‌شوند. ساختار اخبار دستی بالا بدون تغییر باقی می‌ماند.</div>
+  <div id="ffLiveList"><div class="hint">در حال دریافت اخبار Forex Factory…</div></div>
+ </div>
  <h3 style="font-size:13px;margin:6px 0">⏭ پیش رو</h3>${fut.map(row).join('')||'<div class="hint">رویدادی ثبت نشده.</div>'}
- <h3 style="font-size:13px;margin:14px 0 6px">⏮ گذشته</h3>${past.map(row).join('')||'<div class="hint">—</div>'}</div>`;};
+ <h3 style="font-size:13px;margin:14px 0 6px">⏮ گذشته</h3>${past.map(row).join('')||'<div class="hint">—</div>'}</div>`;
+ ffRenderLive();
+};
 VIEWS.plan=m=>{const p=DB.plan;
  const listEd=(key,title)=>`<div class="f"><label>${title}</label><div id="pl_${key}">${(p[key]||[]).map((x,i)=>`<div class="listRow"><span style="flex:1">${esc(x)}</span><button class="btn ghost sm" data-act="plDel" data-k="${key}" data-i="${i}">🗑</button></div>`).join('')||'<span class="hint">—</span>'}</div><div class="row"><input id="pl_${key}_in" placeholder="مورد جدید…"><button class="btn ghost sm" data-act="plAdd" data-k="${key}">+</button></div></div>`;
  m.innerHTML=`<div class="card glow"><div class="chd"><h3>🧭 TRADING PLAN</h3><button class="btn ok sm" data-act="plSave">💾 ذخیره</button></div>
@@ -1070,6 +1082,70 @@ function csvExport(ts){const rows=[['Date','Time','Symbol','Dir','Strategy','Set
  dl('journal-'+dayKey(Date.now(),'UTC')+'.csv','\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n'),'text/csv');toast('CSV دانلود شد','ok');}
 function dl(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
 function compress(file,cb,max=1000,q=.72){const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*sc;c.height=img.height*sc;c.getContext('2d').drawImage(img,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',q));};img.onerror=()=>toast('تصویر خوانده نشد','err');img.src=rd.result;};rd.onerror=()=>toast('فایل خوانده نشد','err');rd.readAsDataURL(file);}
+/* ============================ FOREX FACTORY LIVE ============================ */
+const FF_URL='https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+const FF_CACHE_KEY='tdos_ff_calendar_v1';
+const FF_CACHE_TTL=60*60*1000;
+let FF_DATA=[],FF_LOADING=false,FF_LAST=0;
+function ffNormImpact(x){const s=String(x||'').toLowerCase();return s==='high'?'high':s==='medium'?'med':'low';}
+function ffLoadCache(){
+ try{const x=JSON.parse(localStorage.getItem(FF_CACHE_KEY)||'null');if(x&&Array.isArray(x.data)){FF_DATA=x.data;FF_LAST=+x.ts||0;return true;}}catch(e){}
+ return false;
+}
+function ffSaveCache(){try{localStorage.setItem(FF_CACHE_KEY,JSON.stringify({ts:FF_LAST,data:FF_DATA}));}catch(e){}}
+function ffRow(e){
+ const at=Date.parse(e.date), now=Date.now(), im=IMP[ffNormImpact(e.impact)]||IMP.low;
+ if(!isFinite(at))return '';
+ const left=at-now;
+ const near=left>=0&&left<=num(DB.settings.newsWindowMin)*6e4&&ffNormImpact(e.impact)==='high';
+ const live=left>=0;
+ return `<div class="listRow" style="${near?'border-color:var(--sell);box-shadow:0 0 12px rgba(246,70,93,.08)':''}">
+  <span style="font-size:16px">${im[0]}</span>
+  <span class="ltr" style="width:52px;text-align:center;font-weight:700">${esc(e.country||'')}</span>
+  <span style="flex:1;min-width:0"><b>${esc(e.title||'')}</b> <span class="pill ${im[2]}" style="font-size:10px">${im[1]}</span>
+   ${near?'<span class="pill s-r" style="font-size:10px">⚠️ گیت بسته</span>':''}
+   ${e.forecast?'<div class="hint">Forecast: <b class="ltr">'+esc(e.forecast)+'</b>'+(e.previous?' · Previous: <b class="ltr">'+esc(e.previous)+'</b>':'')+'</div>':(e.previous?'<div class="hint">Previous: <b class="ltr">'+esc(e.previous)+'</b></div>':'')}
+  </span>
+  <span class="ltr mut" style="white-space:nowrap">${dateStr(at,DB.settings.displayTz)} ${timeStr(at,DB.settings.displayTz)}</span>
+  ${live?`<b class="bignum ltr" style="font-size:13px;min-width:88px;text-align:left">${fmtDur(left)}</b>`: '<span class="pill" style="font-size:10px">گذشته</span>'}
+ </div>`;
+}
+function ffRenderLive(){
+ const box=document.getElementById('ffLiveList'),st=document.getElementById('ffStatus');if(!box)return;
+ const now=Date.now();
+ const data=(FF_DATA||[]).filter(e=>e&&e.date&&Date.parse(e.date));
+ const sorted=data.slice().sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
+ const upcoming=sorted.filter(e=>Date.parse(e.date)>=now);
+ const past=sorted.filter(e=>Date.parse(e.date)<now).slice(-8).reverse();
+ if(st){
+   if(FF_LOADING)st.textContent='در حال دریافت…';
+   else if(FF_LAST)st.textContent='آخرین بروزرسانی: '+timeStr(FF_LAST,DB.settings.displayTz);
+   else st.textContent='بدون داده';
+ }
+ if(!data.length){box.innerHTML='<div class="hint">داده زنده Forex Factory در دسترس نیست. دکمه بروزرسانی را بزنید.</div>';return;}
+ box.innerHTML='<div class="hint" style="margin-bottom:7px">⏭ پیش رو</div>'+
+  (upcoming.map(ffRow).join('')||'<div class="hint">خبر آینده‌ای در فید فعلی نیست.</div>')+
+  '<div class="hint" style="margin:12px 0 7px">⏮ آخرین اخبار گذشته</div>'+
+  (past.map(ffRow).join('')||'<div class="hint">—</div>');
+}
+async function ffFetch(force){
+ if(FF_LOADING)return;
+ if(!force&&FF_DATA.length&&Date.now()-FF_LAST<FF_CACHE_TTL){ffRenderLive();return;}
+ FF_LOADING=true;ffRenderLive();
+ const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),15000);
+ try{
+   const res=await fetch(FF_URL+'?v='+Math.floor(Date.now()/FF_CACHE_TTL),{cache:'no-store',signal:ctl.signal,headers:{'Accept':'application/json'}});
+   if(!res.ok)throw new Error('HTTP '+res.status);
+   const data=await res.json();
+   if(!Array.isArray(data))throw new Error('فرمت فید نامعتبر است');
+   FF_DATA=data.filter(e=>e&&e.date&&e.title).map(e=>({...e,impact:ffNormImpact(e.impact)}));
+   FF_LAST=Date.now();ffSaveCache();
+ }catch(e){
+   if(!FF_DATA.length)ffLoadCache();
+   const st=document.getElementById('ffStatus');if(st)st.textContent=FF_DATA.length?'⚠️ داده ذخیره‌شده':'❌ اتصال ناموفق';
+   if(!FF_DATA.length)toast('دریافت اخبار Forex Factory ناموفق بود','err');
+ }finally{clearTimeout(timer);FF_LOADING=false;ffRenderLive();}
+}
 /* ============================ EVENTS ============================ */
 document.addEventListener('click',e=>{
  const nav=e.target.closest('[data-nav]');if(nav){go(nav.dataset.nav);return;}
