@@ -132,7 +132,22 @@
 #checklistPage .checklist-section-title{font-size:14px;margin-bottom:11px}
 #checklistPage .checklist-rule-placeholder{font-size:11px;background:rgba(255,255,255,.012)}
 @media(max-width:900px){#checklistPage .checklist-grid{grid-template-columns:1fr}#checklistPage{padding:12px!important}}
-</style></style></style>
+<style id="checklist-final-style">
+#checklistPage{padding:24px!important;background:linear-gradient(145deg,#050b08,#0b1711 55%,#06100c)!important;border:1px solid rgba(101,246,160,.12);border-radius:18px;min-height:calc(100vh - 150px)}
+#checklistPage .checklist-wrap{max-width:1200px;margin:0 auto;display:grid;gap:18px}
+#checklistPage .checklist-gate{border:1px solid rgba(101,246,160,.25);border-radius:16px;background:rgba(4,12,8,.88);overflow:hidden}
+#checklistPage .checklist-gate-head{padding:20px 22px;background:linear-gradient(90deg,rgba(101,246,160,.08),transparent);display:flex;justify-content:space-between;align-items:center}
+#checklistPage .checklist-gate-title{font-size:22px;font-weight:950;letter-spacing:1.5px;color:#effff5}
+#checklistPage .checklist-status{font-size:11px;font-weight:900;padding:8px 13px;border-radius:8px;color:#f5d06f;background:rgba(245,208,111,.08);border:1px solid rgba(245,208,111,.22)}
+#checklistPage .checklist-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:18px}
+#checklistPage .checklist-card{min-height:155px;padding:18px;border:1px solid rgba(143,211,199,.13);border-radius:12px;background:rgba(255,255,255,.015)}
+#checklistPage .checklist-card-title{font-size:15px;font-weight:900;color:#e7fff1;margin-bottom:14px}
+#checklistPage .checklist-placeholder{font-size:11px;line-height:2;color:#7f9187}
+#checklistPage .checklist-section{padding:18px;border:1px solid rgba(143,211,199,.13);border-radius:14px;background:rgba(4,12,8,.72)}
+#checklistPage .checklist-section-title{font-size:15px;font-weight:900;color:#e7fff1;margin-bottom:12px}
+#checklistPage .checklist-rule-placeholder{padding:14px;border:1px dashed rgba(143,211,199,.18);border-radius:9px;font-size:11px;color:#718179}
+@media(max-width:900px){#checklistPage{padding:14px!important}.checklist-grid{grid-template-columns:1fr!important}}
+</style></style></style></style>
 </head>
 <body>
 <div class="app">
@@ -172,7 +187,7 @@
 </section></section>
 <section class="page" id="genericPage"><section class="dashboard"><div class="card workspace"><div class="head"><b id="genericTitle">MODULE</b><span class="tag">READY</span></div><div class="placeholder">این بخش برای ماژول آینده آماده است.</div></div></section></section>
 <div class="footer">HAMED COMMAND CENTER • 2026</div>
-<section class="page" id="checklistPage" style="display:none">
+<section class="page" id="checklistPage">
   <div class="checklist-wrap">
     <div class="checklist-gate">
       <div class="checklist-gate-head">
@@ -191,9 +206,10 @@
 </section></main>
 </div>
 <script>
-const pageInfo={dashboard:['داشبورد','مرکز کنترل شخصی و فضای کاری تو'],section1:['بخش ۱','فضای آماده برای ماژول جدید'],section2:['بخش ۲','فضای آماده برای ماژول جدید'],section3:['بخش ۳','فضای آماده برای ماژول جدید'],settings:['تنظیمات','مدیریت ظاهر و امکانات داشبورد']};
+const pageInfo={dashboard:['داشبورد','مرکز کنترل شخصی و فضای کاری تو'],checklist:['چک‌لیست ورود','ورود فقط بعد از عبور از شروط تعیین‌شده'],settings:['تنظیمات','مدیریت ظاهر و امکانات داشبورد']};
 const nav=document.querySelectorAll('#nav button'),title=document.getElementById('title'),sub=document.getElementById('sub'),dash=document.getElementById('dashboardPage'),generic=document.getElementById('genericPage');
-function selectPage(name){nav.forEach(x=>x.classList.toggle('active',x.dataset.page===name));title.textContent=pageInfo[name][0];sub.textContent=pageInfo[name][1];dash.classList.toggle('active',name==='dashboard');generic.classList.toggle('active',name!=='dashboard');if(name!=='dashboard')document.getElementById('genericTitle').textContent=pageInfo[name][0].toUpperCase()}
+const checklist=document.getElementById('checklistPage');
+function selectPage(name){if(!pageInfo[name])name='dashboard';nav.forEach(x=>x.classList.toggle('active',x.dataset.page===name));title.textContent=pageInfo[name][0];sub.textContent=pageInfo[name][1];dash.classList.toggle('active',name==='dashboard');generic.classList.toggle('active',name==='settings');checklist.classList.toggle('active',name==='checklist');document.body.classList.toggle('checklist-mode',name==='checklist');if(name==='settings')document.getElementById('genericTitle').textContent='تنظیمات'}
 nav.forEach(btn=>btn.addEventListener('click',()=>selectPage(btn.dataset.page)));
 const days=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'],months=['ژانویه','فوریه','مارس','آوریل','مه','ژوئن','ژوئیه','اوت','سپتامبر','اکتبر','نوامبر','دسامبر'];
 function parts(tz,opts){return new Intl.DateTimeFormat('en-GB',Object.assign({timeZone:tz},opts)).formatToParts(new Date())}
