@@ -786,14 +786,13 @@ VIEWS.news=m=>{
   <button class="btn sm" data-act="ffRefresh">🔄 بروزرسانی</button>
   <a class="btn sm ghost" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener">↗ Forex Factory</a>
 </div>
- <div class="card" style="margin:0 0 14px;padding:13px;background:var(--p2);border-color:var(--line2)">
-  <div class="chd" style="margin-bottom:8px"><h3>🟢 FOREX FACTORY — LIVE</h3><div class="row">
+ <div class="sep" style="margin:10px 0 12px"></div>
+ <div class="chd" style="margin-bottom:8px"><h3>🟢 FOREX FACTORY — LIVE</h3><div class="row">
    <span id="ffStatus" class="pill">در حال دریافت…</span>
    <button class="btn sm" data-act="ffRefresh">🔄 بروزرسانی</button>
   </div></div>
-  <div class="hint" style="margin-bottom:9px">اخبار این بخش مستقیماً از فید هفتگی Forex Factory دریافت می‌شوند و هر ۶۰ دقیقه تازه‌سازی می‌شوند. ساختار اخبار دستی بالا بدون تغییر باقی می‌ماند.</div>
-  <div id="ffLiveList"><div class="hint">در حال دریافت اخبار Forex Factory…</div></div>
- </div>
+ <div class="hint" style="margin-bottom:9px">اخبار این بخش مستقیماً از فید هفتگی Forex Factory دریافت می‌شوند و هر ۶۰ دقیقه تازه‌سازی می‌شوند.</div>
+ <div id="ffLiveList"><div class="hint">در حال دریافت اخبار Forex Factory…</div></div>
  <h3 style="font-size:13px;margin:6px 0">⏭ پیش رو</h3>${fut.map(row).join('')||'<div class="hint">رویدادی ثبت نشده.</div>'}
  <h3 style="font-size:13px;margin:14px 0 6px">⏮ گذشته</h3>${past.map(row).join('')||'<div class="hint">—</div>'}</div>`;
  ffRenderLive();
