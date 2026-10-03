@@ -487,6 +487,12 @@ function newsMini(){const now=Date.now();const win=num(DB.settings.newsWindowMin
   return`<div class="listRow" style="margin-bottom:5px;${near?'border-color:var(--sell)':''}"><span>${im[0]}</span><b style="flex:1;font-size:12.5px">${esc(e.title)}</b><span class="pill ${im[2]}" style="font-size:9.5px">${im[1]}</span><span class="ltr mut" style="font-size:11px">${dstr} ${timeStr(e.at,dz).slice(0,5)}</span>${near?'<span class="pill s-r" style="font-size:9px">پنجره خبر</span>':''}<b class="bignum ltr" style="font-size:12px;min-width:70px;text-align:left">${fmtDur(e.at-now)}</b></div>`;}).join('');
  return rows+'<div class="hint">خبر High در پنجره = گیت بسته (مگر Override). مدیریت کامل: صفحه «تقویم خبری».</div>';}
 /* ============================ GATE ============================ */
+function ffNewsNear(min){
+ const data=(FF_DATA||[]).filter(e=>e&&e.date&&e.title);
+ const now=Date.now(),win=num(min)*6e4;let best=null;
+ for(const ev of data){const at=Date.parse(ev.date);if(!isFinite(at))continue;const ms=at-now;if(Math.abs(ms)<=win&&(!best||Math.abs(ms)<Math.abs(best.ms)))best={ev:{...ev,impact:ffNormImpact(ev.impact)},ms};}
+ return best;
+}
 function gateEval(ctx){ctx=ctx||{};const g=gateScore();const b=breaker();const reasons=[];const warnings=[];
  if(g.pct<g.min)reasons.push(`امتیاز چک‌لیست ${g.pct}% < ${g.min}%`);
  if(g.reqD<g.reqT)reasons.push('سؤالات الزامی تکمیل نشده: '+g.missing.slice(0,3).join(' • '));
@@ -495,9 +501,11 @@ function gateEval(ctx){ctx=ctx||{};const g=gateScore();const b=breaker();const r
  if(ctx.riskPct!=null&&ctx.riskPct>num(DB.settings.maxRiskPct))reasons.push(`ریسک ${ctx.riskPct}% > سقف ${DB.settings.maxRiskPct}%`);
  if(ctx.rr!=null&&ctx.rr<num(DB.settings.minRR))reasons.push(`RR ${ctx.rr} < حداقل ${DB.settings.minRR}`);
  if(ctx.news&&ctx.news!=='noNews'){const nr=DB.rules.find(r=>r.en&&r.blocking&&r.type==='news');if(nr)reasons.push('📰 قانون خبر فعال است: '+nr.text);}
- const nw=num(DB.settings.newsWindowMin);const ne=nw>0?newsNear(nw):null;
+ const nw=num(DB.settings.newsWindowMin);const ne=nw>0?newsNear(nw):null;const fne=nw>0?ffNewsNear(nw):null;
  if(ne&&ne.ev.impact==='high'&&DB.settings.newsBlock!==false){const mi=Math.round(Math.abs(ne.ms)/6e4);reasons.push('📰 تقویم خبری: '+ne.ev.title+' — '+(ne.ms>=0?mi+' دقیقه تا شروع خبر':mi+' دقیقه از شروع خبر گذشته'));}
+ if(fne&&fne.ev.impact==='high'&&DB.settings.newsBlock!==false){const mi=Math.round(Math.abs(fne.ms)/6e4);reasons.push('📰 Forex Factory: '+fne.ev.title+' — '+(fne.ms>=0?mi+' دقیقه تا شروع خبر':mi+' دقیقه از شروع خبر گذشته'));}
  if(ne&&ne.ev.impact==='med')warnings.push('خبر Medium نزدیک است: '+ne.ev.title);
+ if(fne&&fne.ev.impact==='med')warnings.push('Forex Factory Medium نزدیک است: '+fne.ev.title);
  if(ctx.session==='custom-none'&&DB.settings.autoSession)reasons.push('Outside all enabled sessions');
  const unAcked=DB.rules.filter(r=>r.en&&r.blocking&&!UI.ack[r.id]);
  unAcked.forEach(r=>reasons.push('⚖️ تأیید نشده: '+r.text));
@@ -1173,7 +1181,7 @@ async function ffFetch(force){
      if(!res.ok)throw new Error('HTTP '+res.status);
      const text=await res.text();
      const data=JSON.parse(text);
-     if(!Array.isArray(data))throw new Error('فرمت فید نامعتبر است');
+     if(!Array.isArray(data)||!data.length)throw new Error('فید خالی یا نامعتبر است');
      FF_DATA=data.filter(e=>e&&e.date&&e.title).map(e=>({...e,impact:ffNormImpact(e.impact)}));
      FF_LAST=Date.now();ffSaveCache();ok=true;break;
    }catch(e){lastErr=e;}finally{clearTimeout(timer);}
