@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Hamed Command Center</title>
+<style>
+:root{--bg:#070b14;--panel:#0d1422;--panel2:#111a2b;--line:#1d2940;--text:#edf3ff;--muted:#8e9bb2;--accent:#4f8cff;--green:#27d17f;--orange:#ffb84d;--red:#ff5f6d;--cyan:#37d5e8;--shadow:0 18px 45px #0006}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#15284d 0,#070b14 38%),var(--bg);color:var(--text);font-family:Segoe UI,Tahoma,Arial,sans-serif;min-height:100vh}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{border-left:1px solid var(--line);background:#09101cdd;backdrop-filter:blur(16px);padding:22px 16px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:12px;padding:8px 8px 25px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#4f8cff,#7b5cff);display:grid;place-items:center;font-weight:800;font-size:20px}.brand b{font-size:18px}.brand small{display:block;color:var(--muted);margin-top:3px}
+.nav{display:grid;gap:7px}.nav button{border:1px solid transparent;background:transparent;color:#b9c5da;text-align:right;padding:12px 13px;border-radius:11px}.nav button:hover,.nav button.active{background:#15223a;border-color:#243452;color:#fff}
+.side-bottom{position:absolute;bottom:20px;left:16px;right:16px;color:var(--muted);font-size:12px;line-height:1.7}
+.main{padding:25px;max-width:1500px;width:100%;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:22px}.title h1{margin:0;font-size:28px}.title p{margin:6px 0;color:var(--muted)}.clock{font-variant-numeric:tabular-nums;color:#bcd0f4}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{background:#142039;border:1px solid #273957;color:#eaf1ff;padding:9px 13px;border-radius:10px}.btn:hover{background:#1b2b4b}.btn.primary{background:#3478f6;border-color:#4f8cff}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{grid-column:span 3;background:linear-gradient(180deg,#0f1829ee,#0b1321ee);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:var(--shadow)}.wide{grid-column:span 8}.half{grid-column:span 6}.full{grid-column:1/-1}.third{grid-column:span 4}.card h3{margin:0 0 12px;font-size:15px}.muted{color:var(--muted)}.value{font-size:27px;font-weight:750}.tag{display:inline-block;padding:4px 8px;border-radius:99px;background:#17243b;color:#bcd0f4;font-size:11px;margin:3px}.green{color:var(--green)}.orange{color:var(--orange)}.cyan{color:var(--cyan)}.red{color:var(--red)}
+.list{display:grid;gap:8px}.row{display:flex;justify-content:space-between;align-items:center;padding:10px 11px;background:#0a1220;border:1px solid #172238;border-radius:10px}.row span:first-child{color:#c8d3e6}
+.progress{height:7px;background:#172238;border-radius:9px;overflow:hidden;margin-top:10px}.progress i{display:block;height:100%;background:linear-gradient(90deg,#4f8cff,#37d5e8);width:68%}
+textarea,input{width:100%;background:#09111e;color:#eaf1ff;border:1px solid #22304a;border-radius:10px;padding:10px;outline:none}textarea{min-height:120px;resize:vertical}input:focus,textarea:focus{border-color:#4f8cff}
+.tools{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.tool{padding:12px;background:#0a1220;border:1px solid #172238;border-radius:11px;color:#dce6f7;text-decoration:none;display:block}.tool:hover{border-color:#35517e;background:#101c30}
+.empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed #283650;border-radius:12px}
+.hidden{display:none!important}.section{display:none}.section.active{display:block}
+.footer{text-align:center;color:#65748e;font-size:11px;padding:25px}
+@media(max-width:1000px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto;border-left:0;border-bottom:1px solid var(--line);padding:12px}.brand{padding:5px 8px 10px}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap}.side-bottom{display:none}.main{padding:16px}.card,.wide,.half,.third{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">H</div><div><b>Hamed OS</b><small>Personal Command Center</small></div></div>
+  <nav class="nav">
+    <button class="active" data-page="home">⌂ خانه</button>
+    <button data-page="trading">◈ Trading</button>
+    <button data-page="projects">▣ پروژه‌ها</button>
+    <button data-page="tools">⚙ ابزارها</button>
+    <button data-page="notes">✎ یادداشت‌ها</button>
+    <button data-page="settings">⚙ تنظیمات</button>
+  </nav>
+  <div class="side-bottom">نسخه 1.0<br>داده‌های شخصی این داشبورد در مرورگر ذخیره می‌شوند.</div>
+</aside>
+<main class="main">
+<header class="top">
+ <div class="title"><h1 id="pageTitle">Hamed Command Center</h1><p id="pageSub">مرکز کنترل شخصی برای پروژه‌ها، ترید، ابزارها و یادداشت‌ها</p></div>
+ <div class="actions"><span class="clock" id="clock"></span><button class="btn" id="themeBtn">◐ حالت</button></div>
+</header>
+
+<section id="home" class="section active">
+<div class="grid">
+ <div class="card"><h3>وضعیت سیستم</h3><div class="value green">ONLINE</div><div class="muted">داشبورد آماده استفاده است</div></div>
+ <div class="card"><h3>پروژه‌های فعال</h3><div class="value" id="projectCount">5</div><div class="muted">قابل ویرایش از بخش پروژه‌ها</div></div>
+ <div class="card"><h3>یادداشت‌ها</h3><div class="value" id="noteCount">0</div><div class="muted">ذخیره محلی مرورگر</div></div>
+ <div class="card"><h3>Focus</h3><div class="value cyan">ICT / AI</div><div class="muted">Trading + Automation</div></div>
+ <div class="card wide"><h3>مرکز عملیات</h3><div class="list">
+  <div class="row"><span>Forex / ICT</span><b class="green">فعال</b></div>
+  <div class="row"><span>MT5 Risk Manager</span><b class="orange">در حال توسعه</b></div>
+  <div class="row"><span>Voice Trade Monitor</span><b class="orange">در حال توسعه</b></div>
+  <div class="row"><span>ShareX Automation</span><b class="green">فعال</b></div>
+  <div class="row"><span>Local AI / APIs</span><b class="cyan">آزمایش</b></div>
+ </div></div>
+ <div class="card"><h3>اهداف امروز</h3><div class="muted">پیشرفت</div><div class="value">68%</div><div class="progress"><i></i></div></div>
+ <div class="card half"><h3>دسترسی سریع</h3><div class="tools">
+  <a class="tool" href="https://github.com/hamedusa2021-lab/HamedTDJ" target="_blank">GitHub</a>
+  <a class="tool" href="https://hamedusa2021-lab.github.io/trading-journal/" target="_blank">Trading Journal</a>
+  <a class="tool" href="https://www.forexfactory.com/calendar" target="_blank">ForexFactory</a>
+  <a class="tool" href="https://www.investing.com/" target="_blank">Investing</a>
+ </div></div>
+ <div class="card half"><h3>اطلاعات</h3><p class="muted">این داشبورد عمداً بدون سرور طراحی شده؛ اطلاعات قابل ذخیره در مرورگر با LocalStorage نگهداری می‌شود.</p></div>
+</div></section>
+
+<section id="trading" class="section">
+<div class="grid">
+ <div class="card"><h3>بازار</h3><div class="value">EUR/USD</div><span class="tag">ICT</span><span class="tag">Scalping</span></div>
+ <div class="card"><h3>DXY</h3><div class="value cyan">Monitor</div><div class="muted">جهت دلار</div></div>
+ <div class="card"><h3>Risk</h3><div class="value orange">1R</div><div class="muted">قبل از معامله محاسبه شود</div></div>
+ <div class="card"><h3>News</h3><div class="value red">Check</div><div class="muted">قبل از ورود بررسی خبر</div></div>
+ <div class="card wide"><h3>Trading Checklist</h3><div class="list">
+  <label class="row"><span>Liquidity / Session</span><input type="checkbox" style="width:auto"></label>
+  <label class="row"><span>HTF Bias</span><input type="checkbox" style="width:auto"></label>
+  <label class="row"><span>FVG / OB / MSS</span><input type="checkbox" style="width:auto"></label>
+  <label class="row"><span>News Risk</span><input type="checkbox" style="width:auto"></label>
+  <label class="row"><span>Risk & SL confirmed</span><input type="checkbox" style="width:auto"></label>
+ </div></div>
+ <div class="card"><h3>لینک‌های بازار</h3><div class="tools"><a class="tool" href="https://www.forexfactory.com/calendar" target="_blank">News</a><a class="tool" href="https://www.investing.com/indices/us-dollar-index" target="_blank">DXY</a></div></div>
+</div></section>
+
+<section id="projects" class="section">
+<div class="grid">
+ <div class="card full"><h3>پروژه‌های Hamed</h3><div class="list" id="projectsList"></div></div>
+</div></section>
+
+<section id="tools" class="section">
+<div class="grid">
+ <div class="card full"><h3>ابزارهای سریع</h3><div class="tools">
+  <a class="tool" href="https://github.com/hamedusa2021-lab" target="_blank">GitHub Profile</a>
+  <a class="tool" href="https://www.tradingview.com/" target="_blank">TradingView</a>
+  <a class="tool" href="https://www.forexfactory.com/" target="_blank">ForexFactory</a>
+  <a class="tool" href="https://www.investing.com/" target="_blank">Investing.com</a>
+  <a class="tool" href="https://github.com/ShareX/ShareX" target="_blank">ShareX</a>
+  <a class="tool" href="https://github.com/" target="_blank">GitHub Search</a>
+ </div></div>
+</div></section>
+
+<section id="notes" class="section">
+<div class="grid">
+ <div class="card half"><h3>یادداشت جدید</h3><textarea id="noteInput" placeholder="اینجا یادداشت کن..."></textarea><br><br><button class="btn primary" id="saveNote">ذخیره یادداشت</button></div>
+ <div class="card half"><h3>یادداشت‌های ذخیره‌شده</h3><div id="notesList" class="list"></div></div>
+</div></section>
+
+<section id="settings" class="section">
+<div class="grid">
+ <div class="card half"><h3>تنظیمات</h3><p class="muted">اطلاعات این نسخه روی همین مرورگر ذخیره می‌شود.</p><button class="btn" id="exportBtn">خروجی JSON</button> <button class="btn" id="clearBtn">پاک‌کردن یادداشت‌ها</button></div>
+ <div class="card half"><h3>نسخه</h3><div class="value">1.0</div><p class="muted">Hamed Personal Command Center</p></div>
+</div></section>
+<div class="footer">Hamed Personal Command Center • GitHub Pages</div>
+</main></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const pages={home:['Hamed Command Center','مرکز کنترل شخصی برای پروژه‌ها، ترید، ابزارها و یادداشت‌ها'],trading:['Trading Center','چک‌لیست و دسترسی سریع بازار'],projects:['Project Hub','مدیریت پروژه‌های شخصی'],tools:['Tools','دسترسی سریع به ابزارها و سرویس‌ها'],notes:['Notes','یادداشت‌های شخصی ذخیره‌شده در مرورگر'],settings:['Settings','تنظیمات و پشتیبان‌گیری']};
+$$('.nav button').forEach(b=>b.onclick=()=>{ $$('.nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); $$('.section').forEach(x=>x.classList.remove('active')); $('#'+b.dataset.page).classList.add('active'); $('#pageTitle').textContent=pages[b.dataset.page][0]; $('#pageSub').textContent=pages[b.dataset.page][1]; });
+function tick(){const d=new Date();$('#clock').textContent=d.toLocaleString('fa-IR',{dateStyle:'medium',timeStyle:'medium'});}setInterval(tick,1000);tick();
+const projects=['MT5 Risk Manager','Voice Trade Monitor','ShareX Watermark Automation','Forex Market Dashboard','Local AI / API Lab'];
+function renderProjects(){ $('#projectsList').innerHTML=projects.map((p,i)=>'<div class="row"><span>'+p+'</span><span class="tag">'+(i<1?'Core':i<3?'Automation':'Research')+'</span></div>').join('');$('#projectCount').textContent=projects.length}
+function notes(){return JSON.parse(localStorage.getItem('hamed_notes')||'[]')}
+function renderNotes(){const a=notes();$('#noteCount').textContent=a.length;$('#notesList').innerHTML=a.length?a.map((n,i)=>'<div class="row"><span>'+n.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span><button class="btn" onclick="delNote('+i+')">×</button></div>').join(''):'<div class="empty">هنوز یادداشتی ثبت نشده</div>'}
+window.delNote=i=>{const a=notes();a.splice(i,1);localStorage.setItem('hamed_notes',JSON.stringify(a));renderNotes()}
+$('#saveNote').onclick=()=>{const v=$('#noteInput').value.trim();if(!v)return;const a=notes();a.unshift(v);localStorage.setItem('hamed_notes',JSON.stringify(a));$('#noteInput').value='';renderNotes()}
+$('#clearBtn').onclick=()=>{if(confirm('همه یادداشت‌ها حذف شوند؟')){localStorage.removeItem('hamed_notes');renderNotes()}}
+$('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({notes:notes(),exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hamed-dashboard-backup.json';a.click();URL.revokeObjectURL(a.href)}
+$('#themeBtn').onclick=()=>{document.body.classList.toggle('light'); if(document.body.classList.contains('light')){document.documentElement.style.setProperty('--bg','#eef3f9');document.documentElement.style.setProperty('--panel','#fff');document.documentElement.style.setProperty('--text','#172033');}else location.reload()}
+renderProjects();renderNotes();
+</script>
+</body></html>
