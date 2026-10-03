@@ -3,70 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#070b14">
-<title>Hamed • Command Center</title>
+<meta name="theme-color" content="#050811">
+<title>HAMED • Command Center</title>
 <style>
-:root{--bg:#070b14;--panel:rgba(15,22,36,.78);--panel2:#10192a;--line:#22304a;--text:#f4f7fc;--muted:#8491a8;--blue:#6ea8ff;--cyan:#55d6ff;--green:#54e39a;--shadow:0 18px 55px rgba(0,0,0,.28)}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 80% 0%,#152746 0,#0a1020 28%,var(--bg) 62%);color:var(--text);font-family:Segoe UI,Tahoma,Arial,sans-serif}button{font:inherit}
-.app{min-height:100vh;display:flex}.sidebar{width:260px;flex:0 0 260px;padding:22px 16px;background:rgba(6,10,18,.82);border-left:1px solid rgba(255,255,255,.06);backdrop-filter:blur(18px)}
-.brand{display:flex;align-items:center;gap:12px;padding:8px 8px 22px;border-bottom:1px solid var(--line)}.logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:900;font-size:19px;background:linear-gradient(135deg,#1b6dff,#55d6ff);box-shadow:0 8px 30px rgba(75,140,255,.3)}.brand-title{font-weight:800;letter-spacing:1px}.brand-sub{font-size:11px;color:var(--muted);margin-top:4px}
-.nav{display:grid;gap:8px;margin-top:22px}.nav button{border:1px solid transparent;background:transparent;color:#8e9bb0;padding:13px 14px;border-radius:12px;text-align:right;cursor:pointer;transition:.2s}.nav button:hover{background:#101a2b;color:#dce8fb;transform:translateX(-2px)}.nav button.active{background:linear-gradient(90deg,#172844,#111b2d);border-color:#2b466e;color:#fff;box-shadow:inset 3px 0 0 var(--blue)}
-.main{flex:1;min-width:0;padding:26px 30px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.eyebrow{font-size:11px;letter-spacing:2px;color:var(--blue);font-weight:700}.page-title{font-size:30px;font-weight:800;margin-top:5px}.page-sub{font-size:13px;color:var(--muted);margin-top:5px}.live{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid #203452;background:rgba(13,24,42,.7);border-radius:999px;color:#aebbd0;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{grid-column:span 4;min-height:180px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(18,28,46,.9),rgba(10,16,28,.78));box-shadow:var(--shadow);position:relative;overflow:hidden}.card:after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.035),transparent 35%);pointer-events:none}.wide{grid-column:span 8}.full{grid-column:1/-1}.card-head{display:flex;justify-content:space-between;align-items:center;padding:17px 18px 0}.card-title{font-size:12px;color:#aab7ca;font-weight:700}.mini{font-size:10px;color:#53647e}.empty{height:120px;display:grid;place-items:center;color:#3f4f68;font-size:12px;position:relative;z-index:1}.empty span{border:1px dashed #263650;border-radius:12px;padding:10px 16px}
-.clock-card{min-height:260px;background:radial-gradient(circle at 50% 45%,rgba(52,117,255,.18),transparent 52%),linear-gradient(145deg,#111f36,#0b1220)}.clock-content{text-align:center;padding:26px 12px;position:relative;z-index:1}.clock-label{font-size:12px;color:#9db0c9}.clock-time{font-size:51px;font-weight:800;letter-spacing:2px;direction:ltr;font-variant-numeric:tabular-nums;margin:12px 0 8px;text-shadow:0 0 25px rgba(91,164,255,.25)}.clock-date{font-size:13px;color:#aab8cb}.timezone{display:inline-block;margin-top:14px;font-size:10px;color:#637692;padding:5px 9px;border:1px solid #263957;border-radius:999px}
-.hero{min-height:250px;display:flex;align-items:center;justify-content:space-between;padding:28px}.hero-copy{position:relative;z-index:1}.hero h2{margin:7px 0;font-size:25px}.hero p{color:var(--muted);font-size:13px;margin:0}.hero-mark{width:125px;height:125px;border-radius:50%;border:1px solid #2d4c78;display:grid;place-items:center;background:radial-gradient(circle,#18345c 0,#0e1a2d 65%);box-shadow:0 0 55px rgba(76,139,255,.16);font-size:34px;font-weight:900;color:#8bc5ff}.accent{color:var(--blue)}
-.footer{text-align:center;padding:25px 0 5px;color:#45546b;font-size:10px;letter-spacing:1px}
-@media(max-width:1050px){.sidebar{width:220px;flex-basis:220px}.main{padding:22px}.card,.wide{grid-column:span 6}.hero{grid-column:1/-1}}
-@media(max-width:760px){.app{display:block}.sidebar{width:100%;padding:13px 12px;border-left:0;border-bottom:1px solid var(--line)}.brand{padding-bottom:12px}.nav{display:flex;overflow-x:auto;margin-top:12px}.nav button{white-space:nowrap;flex:0 0 auto;padding:10px 13px}.main{padding:17px 13px}.page-title{font-size:24px}.grid{gap:12px}.card,.wide,.full{grid-column:1/-1}.hero{min-height:190px;padding:22px}.hero-mark{width:90px;height:90px;font-size:27px}.clock-time{font-size:43px}}
+:root{--bg:#050811;--panel:rgba(11,17,29,.78);--panel2:#0d1626;--line:#1c2b43;--text:#f4f7ff;--muted:#7f8ca4;--blue:#4f8cff;--cyan:#39d9ff;--green:#45e39a;--orange:#ffb454;--shadow:0 20px 70px rgba(0,0,0,.38)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#050811;color:var(--text);font-family:Segoe UI,Tahoma,Arial,sans-serif}body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 78% 8%,rgba(55,125,255,.16),transparent 30%),radial-gradient(circle at 20% 80%,rgba(0,214,255,.07),transparent 25%);z-index:-1}button{font:inherit}
+.app{min-height:100vh;display:flex}.sidebar{width:265px;flex:0 0 265px;background:rgba(4,8,15,.84);border-left:1px solid rgba(255,255,255,.06);backdrop-filter:blur(20px);padding:22px 15px}.brand{display:flex;align-items:center;gap:12px;padding:7px 9px 23px;border-bottom:1px solid var(--line)}.logo{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:20px;font-weight:900;background:linear-gradient(135deg,#236dff,#36dcff);box-shadow:0 0 32px rgba(54,160,255,.28)}.brand-title{font-weight:850;letter-spacing:1.4px}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.8px;margin-top:4px}.nav{display:grid;gap:7px;margin-top:22px}.nav button{border:1px solid transparent;background:transparent;color:#8e9ab0;padding:13px 14px;border-radius:12px;text-align:right;cursor:pointer;transition:.2s}.nav button:hover{background:#0d1829;color:#e8f1ff;transform:translateX(-2px)}.nav button.active{background:linear-gradient(90deg,#142744,#0d1728);border-color:#29466d;color:#fff;box-shadow:inset -3px 0 var(--blue)}
+.main{flex:1;min-width:0;padding:27px 31px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.eyebrow{font-size:10px;letter-spacing:2.3px;color:#66a6ff;font-weight:800}.title{font-size:29px;font-weight:850;margin-top:5px}.sub{font-size:12px;color:var(--muted);margin-top:5px}.online{display:flex;align-items:center;gap:9px;border:1px solid #213553;background:rgba(10,20,35,.72);padding:9px 13px;border-radius:999px;color:#a9b8ce;font-size:11px}.pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(69,227,154,.55);animation:pulse 1.8s infinite}@keyframes pulse{70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.dashboard{display:grid;grid-template-columns:repeat(12,1fr);gap:15px}.card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(16,26,43,.86),rgba(8,14,25,.78));box-shadow:var(--shadow)}.card:before{content:"";position:absolute;inset:0;background:linear-gradient(125deg,rgba(255,255,255,.035),transparent 32%);pointer-events:none}.hero{grid-column:span 8;min-height:275px;padding:31px;display:flex;align-items:center;justify-content:space-between}.hero h2{font-size:27px;margin:9px 0 10px}.hero p{color:var(--muted);font-size:13px;line-height:1.8;max-width:470px}.accent{color:#6aa9ff}.orb{width:142px;height:142px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:radial-gradient(circle,#1b4f92 0,#102747 38%,#091322 69%);border:1px solid #315887;box-shadow:0 0 70px rgba(59,133,255,.18),inset 0 0 30px rgba(58,179,255,.08);font-size:38px;font-weight:900;color:#a5d9ff}.orb:after{content:"";position:absolute;width:174px;height:174px;border:1px solid rgba(69,151,255,.16);border-radius:50%}
+.clock{grid-column:span 4;min-height:275px;background:radial-gradient(circle at 50% 46%,rgba(58,124,255,.19),transparent 50%),linear-gradient(145deg,#101e35,#08111e)}.head{display:flex;align-items:center;justify-content:space-between;padding:17px 18px}.head b{font-size:11px;color:#aebbd0}.tag{font-size:9px;color:#5d7392;border:1px solid #253a58;border-radius:20px;padding:4px 8px}.clockbox{text-align:center;padding:26px 8px}.clock-label{font-size:11px;color:#93a8c3}.clock-time{font-size:48px;font-weight:850;letter-spacing:2px;direction:ltr;font-variant-numeric:tabular-nums;margin:12px 0 7px;text-shadow:0 0 28px rgba(85,160,255,.25)}.clock-date{font-size:12px;color:#a9b8cb}.zone{display:inline-block;margin-top:14px;color:#617592;font-size:9px;border:1px solid #263b58;padding:5px 9px;border-radius:20px}
+.small{grid-column:span 4;min-height:155px}.wide{grid-column:span 8;min-height:155px}.cardbody{padding:2px 18px 18px}.placeholder{height:92px;display:grid;place-items:center;color:#465772;font-size:11px;border:1px dashed #263750;border-radius:13px;background:rgba(5,10,18,.24)}.metric{display:flex;align-items:end;gap:8px;margin-top:4px}.metric strong{font-size:25px}.metric span{font-size:10px;color:#5f718d;margin-bottom:5px}.bars{display:flex;align-items:end;gap:6px;height:75px;margin-top:10px}.bars i{display:block;flex:1;border-radius:5px 5px 2px 2px;background:linear-gradient(to top,#2568d9,#55d9ff);opacity:.72}.bars i:nth-child(1){height:35%}.bars i:nth-child(2){height:55%}.bars i:nth-child(3){height:43%}.bars i:nth-child(4){height:72%}.bars i:nth-child(5){height:61%}.bars i:nth-child(6){height:86%}.bars i:nth-child(7){height:68%}.workspace{grid-column:1/-1;min-height:185px}.workspace .placeholder{height:115px;margin:0 18px 18px}.footer{text-align:center;padding:23px 0 5px;color:#3f4e65;font-size:9px;letter-spacing:1.5px}
+@media(max-width:1050px){.sidebar{width:225px;flex-basis:225px}.main{padding:22px}.hero,.clock,.wide,.small{grid-column:span 6}}
+@media(max-width:760px){.app{display:block}.sidebar{width:100%;padding:12px;border-left:0;border-bottom:1px solid var(--line)}.brand{padding-bottom:12px}.nav{display:flex;overflow-x:auto;margin-top:11px}.nav button{white-space:nowrap;flex:0 0 auto;padding:10px 12px}.main{padding:16px 12px}.top{align-items:flex-start}.title{font-size:24px}.online{padding:8px 10px}.dashboard{gap:12px}.hero,.clock,.wide,.small,.workspace{grid-column:1/-1}.hero{min-height:215px;padding:22px}.hero h2{font-size:22px}.orb{width:92px;height:92px;font-size:27px}.orb:after{width:114px;height:114px}.clock{min-height:230px}.clock-time{font-size:42px}}
 </style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand"><div class="logo">H</div><div><div class="brand-title">HAMED</div><div class="brand-sub">PERSONAL COMMAND CENTER</div></div></div>
-  <nav class="nav" id="nav">
-    <button class="active" data-page="dashboard">⌂ &nbsp; داشبورد</button>
-    <button data-page="section1">◈ &nbsp; بخش ۱</button>
-    <button data-page="section2">◈ &nbsp; بخش ۲</button>
-    <button data-page="section3">◈ &nbsp; بخش ۳</button>
-    <button data-page="settings">⚙ &nbsp; تنظیمات</button>
-  </nav>
+<div class="brand"><div class="logo">H</div><div><div class="brand-title">HAMED</div><div class="brand-sub">PERSONAL COMMAND CENTER</div></div></div>
+<nav class="nav" id="nav">
+<button class="active" data-page="dashboard">⌂ &nbsp; داشبورد</button>
+<button data-page="section1">◈ &nbsp; بخش ۱</button>
+<button data-page="section2">◈ &nbsp; بخش ۲</button>
+<button data-page="section3">◈ &nbsp; بخش ۳</button>
+<button data-page="settings">⚙ &nbsp; تنظیمات</button>
+</nav>
 </aside>
 <main class="main">
-<header class="topbar">
-  <div><div class="eyebrow">COMMAND CENTER</div><div class="page-title" id="title">داشبورد</div><div class="page-sub" id="sub">مرکز کنترل شخصی Hamed</div></div>
-  <div class="live"><span class="dot"></span> سیستم آنلاین</div>
+<header class="top">
+<div><div class="eyebrow">HAMED / COMMAND CENTER</div><div class="title" id="title">داشبورد</div><div class="sub" id="sub">مرکز کنترل شخصی و فضای کاری تو</div></div>
+<div class="online"><span class="pulse"></span> سیستم آنلاین</div>
 </header>
-<section class="grid">
-  <div class="card wide hero">
-    <div class="hero-copy"><div class="eyebrow">WELCOME BACK</div><h2>به داشبورد <span class="accent">Hamed</span> خوش آمدی</h2><p>این فضا آماده است تا ابزارها، پروژه‌ها و اطلاعات موردنیازت را اضافه کنیم.</p></div>
-    <div class="hero-mark">H</div>
-  </div>
-  <div class="card clock-card">
-    <div class="card-head"><div class="card-title">زمان جهانی</div><div class="mini">LIVE</div></div>
-    <div class="clock-content"><div class="clock-label">🇬🇧 لندن — ساعت زنده</div><div class="clock-time" id="clockTime">--:--:--</div><div class="clock-date" id="clockDate">---</div><div class="timezone">Europe / London</div></div>
-  </div>
-  <div class="card"><div class="card-head"><div class="card-title">بخش آماده</div><div class="mini">EMPTY</div></div><div class="empty"><span>فضا برای ویجت جدید</span></div></div>
-  <div class="card"><div class="card-head"><div class="card-title">ابزارها</div><div class="mini">EMPTY</div></div><div class="empty"><span>فضا برای ابزارها</span></div></div>
-  <div class="card"><div class="card-head"><div class="card-title">پروژه‌ها</div><div class="mini">EMPTY</div></div><div class="empty"><span>فضا برای پروژه‌ها</span></div></div>
-  <div class="card full"><div class="card-head"><div class="card-title">WORKSPACE</div><div class="mini">READY FOR NEXT MODULE</div></div><div class="empty"><span>ماژول بعدی را اینجا اضافه می‌کنیم</span></div></div>
+<section class="dashboard">
+<div class="card hero">
+<div><div class="eyebrow">WELCOME BACK</div><h2>مرکز فرمان <span class="accent">Hamed</span></h2><p>یک فضای شخصی مدرن برای مدیریت ابزارها، پروژه‌ها، ترید و هر چیزی که بعداً به داشبورد اضافه می‌کنیم.</p></div>
+<div class="orb">H</div>
+</div>
+<div class="card clock">
+<div class="head"><b>زمان جهانی</b><span class="tag">LIVE</span></div>
+<div class="clockbox"><div class="clock-label">🇬🇧 لندن — ساعت زنده</div><div class="clock-time" id="clockTime">--:--:--</div><div class="clock-date" id="clockDate">---</div><div class="zone">Europe / London</div></div>
+</div>
+<div class="card small">
+<div class="head"><b>وضعیت</b><span class="tag">SYSTEM</span></div>
+<div class="cardbody"><div class="metric"><strong>ONLINE</strong><span>وضعیت فعلی</span></div><div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+</div>
+<div class="card small">
+<div class="head"><b>فضای شخصی</b><span class="tag">READY</span></div>
+<div class="cardbody"><div class="placeholder">ماژول‌های شخصی اینجا قرار می‌گیرند</div></div>
+</div>
+<div class="card small">
+<div class="head"><b>ابزارها</b><span class="tag">EMPTY</span></div>
+<div class="cardbody"><div class="placeholder">ابزارهای موردنیاز را اضافه می‌کنیم</div></div>
+</div>
+<div class="card wide">
+<div class="head"><b>WORKSPACE</b><span class="tag">READY FOR NEXT MODULE</span></div>
+<div class="cardbody"><div class="placeholder">فضای اصلی برای ماژول بعدی داشبورد</div></div>
+</div>
+<div class="card workspace">
+<div class="head"><b>PERSONAL SPACE</b><span class="tag">OPEN</span></div>
+<div class="placeholder">این قسمت عمداً خالی است تا ساختار آینده داشبورد را اینجا بسازیم.</div>
+</div>
 </section>
-<div class="footer">HAMED COMMAND CENTER • 2026</div>
+<div class="footer">HAMED COMMAND CENTER • DESIGNED FOR FUTURE MODULES • 2026</div>
 </main>
 </div>
 <script>
-const pages={dashboard:['داشبورد','مرکز کنترل شخصی Hamed'],section1:['بخش ۱','فضای آماده توسعه'],section2:['بخش ۲','فضای آماده توسعه'],section3:['بخش ۳','فضای آماده توسعه'],settings:['تنظیمات','مدیریت داشبورد']};
+const pages={dashboard:['داشبورد','مرکز کنترل شخصی و فضای کاری تو'],section1:['بخش ۱','فضای آماده برای ماژول جدید'],section2:['بخش ۲','فضای آماده برای ماژول جدید'],section3:['بخش ۳','فضای آماده برای ماژول جدید'],settings:['تنظیمات','مدیریت ظاهر و امکانات داشبورد']};
 const nav=document.querySelectorAll('#nav button'),title=document.getElementById('title'),sub=document.getElementById('sub');
 nav.forEach(btn=>btn.addEventListener('click',()=>{nav.forEach(x=>x.classList.remove('active'));btn.classList.add('active');const p=pages[btn.dataset.page];title.textContent=p[0];sub.textContent=p[1]}));
-const days=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
-const months=['ژانویه','فوریه','مارس','آوریل','مه','ژوئن','ژوئیه','اوت','سپتامبر','اکتبر','نوامبر','دسامبر'];
-function updateLondonClock(){
- const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,day:'2-digit',month:'2-digit',year:'numeric',weekday:'long'}).formatToParts(new Date());
- const get=t=>parts.find(x=>x.type===t)?.value||'';
- const d=new Date(Date.UTC(+get('year'),+get('month')-1,+get('day')));
- document.getElementById('clockTime').textContent=get('hour')+':'+get('minute')+':'+get('second');
- document.getElementById('clockDate').textContent=days[d.getUTCDay()]+'، '+get('day')+' '+months[+get('month')-1]+' '+get('year');
-}
+const days=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'],months=['ژانویه','فوریه','مارس','آوریل','مه','ژوئن','ژوئیه','اوت','سپتامبر','اکتبر','نوامبر','دسامبر'];
+function updateLondonClock(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,day:'2-digit',month:'2-digit',year:'numeric',weekday:'long'}).formatToParts(new Date());const get=t=>parts.find(x=>x.type===t)?.value||'';const d=new Date(Date.UTC(+get('year'),+get('month')-1,+get('day')));document.getElementById('clockTime').textContent=get('hour')+':'+get('minute')+':'+get('second');document.getElementById('clockDate').textContent=days[d.getUTCDay()]+'، '+get('day')+' '+months[+get('month')-1]+' '+get('year')}
 updateLondonClock();setInterval(updateLondonClock,1000);
 </script>
 </body>
