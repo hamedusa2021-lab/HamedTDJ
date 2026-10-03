@@ -137,7 +137,7 @@
 <div class="app">
 <aside class="sidebar">
 <div class="brand"><div class="logo">H</div><div><div class="brand-title">HAMED</div><div class="brand-sub">PERSONAL COMMAND CENTER</div></div></div>
-<nav class="nav" id="nav"><button class="active" data-page="dashboard">⌂ &nbsp; داشبورد</button><button data-page="section1">◈ &nbsp; بخش ۱</button><button data-page="section2">◈ &nbsp; بخش ۲</button><button data-page="section3">◈ &nbsp; بخش ۳</button><button data-page="settings">⚙ &nbsp; تنظیمات</button></nav>
+<nav class="nav" id="nav"><button class="active" data-page="dashboard">⌂ &nbsp; داشبورد</button><button data-page="section1">◈ &nbsp; بخش ۱</button><button data-page="section2">◈ &nbsp; بخش ۲</button><button data-page="section3">◈ &nbsp; بخش ۳</button><button data-page="settings">⚙ &nbsp; تنظیمات</button><button data-page="checklist">✓ &nbsp; چک‌لیست ورود</button></nav>
 </aside>
 <main class="main">
 <header class="top"><div><div class="eyebrow" id="eyebrow">HAMED / COMMAND CENTER</div><div class="title" id="title">داشبورد</div><div class="sub" id="sub">مرکز کنترل شخصی و فضای کاری تو</div></div><div class="top-right"><div class="top-clock"><div class="top-clock-time" id="clockTime">--:--:--</div><div class="top-clock-date" id="clockDate">---</div></div><div class="online"><span class="pulse"></span><span id="onlineText">سیستم آنلاین</span></div></div></header>
@@ -241,7 +241,7 @@ function renderOptions(){const pf=document.getElementById('optionPriorityFilter'
 document.getElementById('refreshOptions').onclick=loadOnlineOptions;document.getElementById('openCmeOptions').onclick=()=>window.open('https://www.cmegroup.com/markets/fx/g10/euro-fx/volume/options','_blank','noopener');
 document.getElementById('openInvestingLiveOrders').onclick=()=>window.open('https://investinglive.com/Orders/','_blank','noopener');document.getElementById('addOptionBtn').onclick=()=>document.getElementById('optionForm').classList.toggle('show');document.getElementById('saveOption').onclick=(ev)=>{ev.preventDefault();const country=document.getElementById('manualOptionCurrency').value.trim().toUpperCase(),strike=Number(document.getElementById('manualOptionStrike').value),volume=Number(document.getElementById('manualOptionVolume').value),priority=document.getElementById('manualOptionPriority').value;if(!country){alert('ارز را وارد کنید');return}if(!Number.isFinite(strike)){alert('Strike را وارد کنید');return}if(!Number.isFinite(volume)){alert('Volume را وارد کنید');return}optionItems.push({id:'om-'+Date.now(),country,strike,volume,priority,manual:true});saveOptions();renderOptions();document.getElementById('optionForm').classList.remove('show');document.getElementById('manualOptionCurrency').value='';document.getElementById('manualOptionStrike').value='';document.getElementById('manualOptionVolume').value='';};document.getElementById('optionPriorityFilter').onchange=renderOptions;document.getElementById('optionCurrencyFilter').onchange=renderOptions;renderOptions();loadOnlineOptions();setInterval(loadOnlineOptions,30*60*1000);
 </script>
-<section class="checklist-page" id="checklistPage">
+<section class="page checklist-page" id="checklistPage">
   <div class="checklist-wrap">
     <div class="checklist-gate">
       <div class="checklist-gate-head">
