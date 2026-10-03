@@ -114,13 +114,15 @@
   .option-row{grid-template-columns:62px 1fr 95px 72px 20px!important}
   .option-strike{font-size:15px!important}.option-volume{font-size:13px!important}.option-currency{font-size:11px!important}
 }
-</style>
+<style>
+.checklist-wrap{display:grid;gap:14px}.checklist-gate,.checklist-section{border:1px solid rgba(143,211,199,.14);border-radius:14px;background:linear-gradient(145deg,rgba(12,21,16,.92),rgba(6,11,8,.97));overflow:hidden}.checklist-gate-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid rgba(143,211,199,.08)}.checklist-gate-title{font-size:16px;font-weight:900;color:#e8fff2}.checklist-status{font-size:12px;font-weight:900;padding:7px 12px;border-radius:8px;background:rgba(245,208,111,.1);color:#f5d06f}.checklist-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:14px}.checklist-card{border:1px solid rgba(143,211,199,.12);border-radius:12px;background:rgba(255,255,255,.018);padding:13px;min-height:130px}.checklist-card-title,.checklist-section-title{font-size:13px;font-weight:850;color:#dfffee;margin-bottom:9px}.checklist-placeholder,.checklist-rule-placeholder{font-size:11px;line-height:1.8;color:#718179}.checklist-section{padding:13px}.checklist-rule-placeholder{border:1px dashed rgba(143,211,199,.16);border-radius:8px;padding:11px}@media(max-width:900px){.checklist-grid{grid-template-columns:1fr}}
+</style></style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
 <div class="brand"><div class="logo">H</div><div><div class="brand-title">HAMED</div><div class="brand-sub">PERSONAL COMMAND CENTER</div></div></div>
-<nav class="nav" id="nav"><button class="active" data-page="dashboard">⌂ &nbsp; داشبورد</button><button data-page="section1">◈ &nbsp; بخش ۱</button><button data-page="section2">◈ &nbsp; بخش ۲</button><button data-page="section3">◈ &nbsp; بخش ۳</button><button data-page="settings">⚙ &nbsp; تنظیمات</button></nav>
+<nav class="nav" id="nav"><button class="active" data-page="dashboard">⌂ &nbsp; داشبورد</button><button data-page="checklist">✓ &nbsp; چک‌لیست ورود</button><button data-page="settings">⚙ &nbsp; تنظیمات</button></nav>
 </aside>
 <main class="main">
 <header class="top"><div><div class="eyebrow" id="eyebrow">HAMED / COMMAND CENTER</div><div class="title" id="title">داشبورد</div><div class="sub" id="sub">مرکز کنترل شخصی و فضای کاری تو</div></div><div class="top-right"><div class="top-clock"><div class="top-clock-time" id="clockTime">--:--:--</div><div class="top-clock-date" id="clockDate">---</div></div><div class="online"><span class="pulse"></span><span id="onlineText">سیستم آنلاین</span></div></div></header>
@@ -154,7 +156,23 @@
 </section></section>
 <section class="page" id="genericPage"><section class="dashboard"><div class="card workspace"><div class="head"><b id="genericTitle">MODULE</b><span class="tag">READY</span></div><div class="placeholder">این بخش برای ماژول آینده آماده است.</div></div></section></section>
 <div class="footer">HAMED COMMAND CENTER • 2026</div>
-</main>
+<section class="page" id="checklistPage" style="display:none">
+  <div class="checklist-wrap">
+    <div class="checklist-gate">
+      <div class="checklist-gate-head">
+        <div class="checklist-gate-title">ENTRY CHECKLIST</div>
+        <div class="checklist-status">GATE: WAITING</div>
+      </div>
+      <div class="checklist-grid">
+        <div class="checklist-card"><div class="checklist-card-title">📰 خبرهای نزدیک</div><div class="checklist-placeholder">محل نمایش خبرهای نزدیک</div></div>
+        <div class="checklist-card"><div class="checklist-card-title">◎ OPTIONS</div><div class="checklist-placeholder">محل نمایش Strike، Volume، Currency و Priority</div></div>
+        <div class="checklist-card"><div class="checklist-card-title">◷ SESSIONS</div><div class="checklist-placeholder">محل نمایش Session فعال</div></div>
+      </div>
+    </div>
+    <div class="checklist-section"><div class="checklist-section-title">✅ بایدها</div><div class="checklist-rule-placeholder">شروط ورود اینجا قرار می‌گیرند.</div></div>
+    <div class="checklist-section"><div class="checklist-section-title">⛔ نبایدها</div><div class="checklist-rule-placeholder">شروط منع ورود اینجا قرار می‌گیرند.</div></div>
+  </div>
+</section></main>
 </div>
 <script>
 const pageInfo={dashboard:['داشبورد','مرکز کنترل شخصی و فضای کاری تو'],section1:['بخش ۱','فضای آماده برای ماژول جدید'],section2:['بخش ۲','فضای آماده برای ماژول جدید'],section3:['بخش ۳','فضای آماده برای ماژول جدید'],settings:['تنظیمات','مدیریت ظاهر و امکانات داشبورد']};
