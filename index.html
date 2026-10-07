@@ -476,7 +476,7 @@ function newsNear(winMin){const now=Date.now();const w=(winMin>0?winMin:30)*6e4;
  return best;}
 function evLocal(ts){const p=zParts(ts,DB.settings.displayTz);return`${p.y}-${pad(p.mo)}-${pad(p.d)}T${pad(p.h)}:${pad(p.mi)}`;}
 function evEpoch(s){if(!s)return 0;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);if(!m)return 0;return utcFrom(DB.settings.displayTz,+m[1],+m[2],+m[3],+m[4],+m[5]);}
-const IMP={high:['🔴','High','s-r'],med:['🟡','Medium','s-a'],low:['⚪','Low','']};
+IMP.holiday=['📅','Holiday',''];const IMP={high:['🔴','High','s-r'],med:['🟡','Medium','s-a'],low:['⚪','Low','']};
 function ffTodayMini(){const now=Date.now();const dz=DB.settings.displayTz||'UTC';
  const key=tt=>{try{const p=zParts(tt,dz);return p.y+'-'+pad(p.mo)+'-'+pad(p.d);}catch(e){return new Date(tt).toISOString().slice(0,10);}};
  const todayKey=key(now);
@@ -1119,7 +1119,7 @@ let FF_VIEW='today';
 const FF_CACHE_KEY='tdos_ff_calendar_v1';
 const FF_CACHE_TTL=60*60*1000;
 let FF_DATA=[],FF_LOADING=false,FF_LAST=0;
-function ffNormImpact(x){const s=String(x||'').toLowerCase();return s==='high'?'high':s==='medium'?'med':'low';}
+function ffNormImpact(x){const s=String(x||'').toLowerCase();return s==='high'?'high':s==='medium'?'med':(s==='holiday'?'holiday':'low');}
 function ffLoadCache(){
  try{const x=JSON.parse(localStorage.getItem(FF_CACHE_KEY)||'null');if(x&&Array.isArray(x.data)){FF_DATA=x.data;FF_LAST=+x.ts||0;return true;}}catch(e){}
  return false;
