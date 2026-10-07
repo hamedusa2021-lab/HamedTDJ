@@ -1094,13 +1094,12 @@ function newsForm(e){formModal(e?'ویرایش رویداد':'رویداد خب�
 function strikeLadder(refPrice,symName){const list=(DB.strikes||[]).filter(s=>s.en!==false).sort((a,b)=>(+a.price)-(+b.price));
  if(!list.length)return'<span class="hint">سطح مهمی ثبت نشده - <button class="btn ghost sm" data-act="stkMgr">مدیریت ⬎</button></span>';
  let nearId=null;if(refPrice){let bd=Infinity;list.forEach(s=>{if(s.symbol&&symName&&s.symbol!==symName)return;const d=Math.abs(refPrice-s.price);if(d<bd){bd=d;nearId=s.id;}});}
- const sgroups={};list.forEach(s=>{const g=s.symbol||'-';(sgroups[g]=sgroups[g]||[]).push(s);});
- return Object.keys(sgroups).map(g=>{
-  const chips=sgroups[g].map(s=>{let d='';
-   if(refPrice&&(!s.symbol||s.symbol===symName)){const ps=symOf(s.symbol).pipSize;const pip=+ps>0?ps:1e-4;const pips=Math.abs(refPrice-s.price)/pip;if(pips<9999)d=`<span class="mut ltr" style="font-size:10px">${pips.toFixed(0)}p</span>`;}
-   return`<span class="tag stkchip ${s.hl?'stkhl':''}" title="${esc(s.note||'')}" style="padding:6px 12px;border-radius:10px;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--p2)">${s.hl?'⭐ ':''}<b class="ltr" style="font-size:13px">${s.price}</b><b class="ltr" style="color:${s.hl?'':'var(--acc2)'}">${esc(s.size||'')}</b>${s.id===nearId?'<span class="pill" style="font-size:9px">نزدیک‌ترین</span>':''}${d}</span>`;}).join('');
-  return '<div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:8px;align-items:center"><span class="pill ltr" style="font-size:10px;min-width:64px;justify-content:center">'+esc(g)+'</span>'+chips+'</div>';
- }).join('');}
+ const head='<div class="listRow" style="background:var(--p3);font-size:11px;border-color:var(--line2);align-items:center"><span style="font-size:14px">📌</span><b class="ltr" style="min-width:72px">قیمت</b><b class="ltr" style="min-width:72px">سایز</b><b>سمبل</b><span style="flex:1"></span><b class="mut">فاصله</b></div>';
+ return head+list.map(s=>{let d='-';
+  if(refPrice&&(!s.symbol||s.symbol===symName)){const ps=symOf(s.symbol).pipSize;const pip=+ps>0?ps:1e-4;const pips=Math.abs(refPrice-s.price)/pip;if(pips<9999)d=pips.toFixed(0)+'p';}
+  const star=s.hl?'⭐':'💵';
+  return'<div class="listRow" style="margin-bottom:5px;'+(s.hl?'border-color:var(--amb);background:var(--amb-bg);':'')+';align-items:center"><span style="font-size:14px">'+star+'</span><b class="ltr" style="min-width:72px">'+s.price+'</b><b class="ltr" style="color:var(--acc2);min-width:72px">'+esc(s.size||'')+'</b><span class="pill ltr" style="font-size:9.5px">'+esc(s.symbol||'-')+'</span>'+(s.id===nearId?'<span class="pill" style="font-size:9px">نزدیک‌ترین</span>':'')+'<span style="flex:1"></span><span class="mut ltr">'+d+'</span></div>';}).join('');}
+
 function stkForm(s,reopen){formModal(s?'ویرایش سطح':'سطح اپشن جدید',[
  {k:'price',l:'عدد / قیمت (مثلاً 1.1670)',t:'number',step:'any'},
  {k:'size',l:'حجم (مثلاً 1.2 BN $)'},
