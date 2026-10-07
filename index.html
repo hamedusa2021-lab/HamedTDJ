@@ -1120,7 +1120,7 @@ let FF_VIEW='today';
 const FF_CACHE_KEY='tdos_ff_calendar_v1';
 const FF_CACHE_TTL=60*60*1000;
 let FF_DATA=[],FF_LOADING=false,FF_LAST=0;
-function ffNormImpact(x){const s=String(x||'').toLowerCase();return s==='high'?'high':s==='medium'?'med':(s==='holiday'?'holiday':'low');}
+function ffNormImpact(x){const s=String(x||'').toLowerCase();return s==='high'?'high':s==='medium'||s==='med'?'med':(s==='holiday'?'holiday':'low');}
 function ffLoadCache(){
  try{const x=JSON.parse(localStorage.getItem(FF_CACHE_KEY)||'null');if(x&&Array.isArray(x.data)){FF_DATA=x.data;FF_LAST=+x.ts||0;return true;}}catch(e){}
  return false;
