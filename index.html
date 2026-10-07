@@ -1091,7 +1091,7 @@ function newsForm(e){formModal(e?'ویرایش رویداد':'رویداد خب�
  o=>{if(!o.title)return toast('عنوان لازم است','err');const at=evEpoch(o.dt);if(!at)return toast('تاریخ نامعتبر','err');
   const rec={title:o.title,at,impact:o.impact||'low',cur:o.cur||'',note:o.note||'',en:e?(e.en!==false):true};
   if(e)Object.assign(e,rec);else DB.news.push({id:uid(),...rec});persist(true);render();});}
-function strikeLadder(refPrice,symName){const list=(DB.strikes||[]).filter(s=>s.en!==false&&s.price!==''&&s.price!=null&&String(s.price).trim()!=='').sort((a,b)=>(+a.price)-(+b.price));
+function strikeLadder(refPrice,symName){const list=(DB.strikes||[]).filter(s=>s.en!==false&&s.symbol&&s.price&&String(s.price).trim()!==''&&String(s.symbol).trim()!=='').sort((a,b)=>(+a.price)-(+b.price));
  if(!list.length)return'<span class="hint">سطح مهمی ثبت نشده - <button class="btn ghost sm" data-act="stkMgr">مدیریت ⬎</button></span>';
  let nearId=null;if(refPrice){let bd=Infinity;list.forEach(s=>{if(s.symbol&&symName&&s.symbol!==symName)return;const d=Math.abs(refPrice-s.price);if(d<bd){bd=d;nearId=s.id;}});}
  let head='<div class="listRow" style="background:var(--p3);font-size:11px;border-color:var(--line2);align-items:center;padding:2px 8px;gap:6px;line-height:1.2"><span style="font-size:14px">📌</span><b class="ltr" style="min-width:72px">قیمت</b><b class="ltr" style="min-width:72px">سایز</b><b>سمبل</b><b class="mut">فاصله</b></div>';
