@@ -477,7 +477,17 @@ function newsNear(winMin){const now=Date.now();const w=(winMin>0?winMin:30)*6e4;
 function evLocal(ts){const p=zParts(ts,DB.settings.displayTz);return`${p.y}-${pad(p.mo)}-${pad(p.d)}T${pad(p.h)}:${pad(p.mi)}`;}
 function evEpoch(s){if(!s)return 0;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);if(!m)return 0;return utcFrom(DB.settings.displayTz,+m[1],+m[2],+m[3],+m[4],+m[5]);}
 const IMP={high:['🔴','High','s-r'],med:['🟡','Medium','s-a'],low:['⚪','Low','']};
-function newsMini(){const now=Date.now();const win=num(DB.settings.newsWindowMin)*6e4;const dz=DB.settings.displayTz;
+function ffTodayMini(){const now=Date.now();const dz=DB.settings.displayTz||'UTC';
+ const key=tt=>{try{const p=zParts(tt,dz);return p.y+'-'+pad(p.mo)+'-'+pad(p.d);}catch(e){return new Date(tt).toISOString().slice(0,10);}};
+ const todayKey=key(now);
+ const data=(FF_DATA||[]).filter(e=>e&&e.date&&e.title&&key(Date.parse(e.date))===todayKey).sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
+ if(!data.length)return'<div class="hint">خبری برای امروز از Forex Factory ثبت نشده است.</div>';
+ return data.map(e=>{const at=Date.parse(e.date);const im=IMP[ffNormImpact(e.impact)]||IMP.low;
+  const actual=e.actual??e.Actual??'',forecast=e.forecast??e.Forecast??'',previous=e.previous??e.Previous??'';
+  const vals=[actual?'Actual: <b class="ltr">'+esc(actual)+'</b>':'',forecast?'Forecast: <b class="ltr">'+esc(forecast)+'</b>':'',previous?'Previous: <b class="ltr">'+esc(previous)+'</b>':''].filter(Boolean).join(' · ');
+  const left=at-now;const live=left>0;
+  return`<div class="listRow" style="margin-bottom:5px"><span style="font-size:15px">${im[0]}</span><span style="flex:1;min-width:0"><b>${esc(e.title||'')}</b> <span class="pill ${im[2]}" style="font-size:9.5px">${im[1]}</span> <span class="pill ltr" style="font-size:9.5px">${esc(e.country||'')}</span>${vals?'<div class="hint">'+vals+'</div>':''}</span><span class="ltr mut" style="font-size:11px">${timeStr(at,dz)}</span>${live?`<b class="bignum ltr" style="font-size:12px;min-width:70px;text-align:left">${fmtDur(left)}</b>`:'<span class="pill" style="font-size:9px">گذشته</span>'}</div>`;}).join('');}
+/* function newsMini(){const now=Date.now();const win=num(DB.settings.newsWindowMin)*6e4;const dz=DB.settings.displayTz;
  const evs=DB.news.filter(e=>e.en!==false).sort((a,b)=>a.at-b.at);
  if(!evs.length)return'<div class="hint">رویدادی ثبت نشده — از صفحه «تقویم خبری» اضافه کنید.</div>';
  const fut=evs.filter(e=>e.at>=now).slice(0,5);
@@ -587,7 +597,7 @@ VIEWS.dash=m=>{const list=DB.widgets.filter(w=>w.en).sort((a,b)=>(a.order||0)-(b
 VIEWS.checklist=m=>{const g=gateEval();
  m.innerHTML=`<div class="card glow"><div id="gatePanel">${gatePanelHTML(g)}</div></div>
  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:14px">
- <div class="card" style="margin:0"><div class="chd"><h3>📰 خبرهای نزدیک</h3><button class="btn ghost sm" data-nav="news">همه ←</button></div>${newsMini()}</div>
+ <div class="card" style="margin:0"><div class="chd"><h3>📰 خبرهای نزدیک</h3><button class="btn ghost sm" data-nav="news">همه ←</button></div>${ffTodayMini()}</div>
  <div class="card" style="margin:0"><div class="chd"><h3>📋 باید / نباید (از پلن)</h3><button class="btn ghost sm" data-nav="plan">ویرایش ←</button></div>
   <div class="row" style="align-items:flex-start;gap:14px">
    <div style="flex:1;min-width:150px"><b class="pos" style="font-size:12px">✅ باید</b>${(DB.plan.do||[]).map(x=>`<div class="listRow" style="border-color:rgba(22,199,132,.4)"><span>✅</span><span style="flex:1;font-size:12.5px">${esc(x)}</span></div>`).join('')||'<div class="hint">—</div>'}</div>
