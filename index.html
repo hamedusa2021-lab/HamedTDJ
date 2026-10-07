@@ -481,7 +481,7 @@ IMP.holiday=['📅','Holiday',''];
 function ffTodayMini(){const now=Date.now();const dz=DB.settings.displayTz||'UTC';
  const key=tt=>{try{const p=zParts(tt,dz);return p.y+'-'+pad(p.mo)+'-'+pad(p.d);}catch(e){return new Date(tt).toISOString().slice(0,10);}};
  const todayKey=key(now);
- const data=(FF_DATA||[]).filter(e=>e&&e.date&&e.title&&key(Date.parse(e.date))===todayKey).sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
+ const data=(FF_DATA||[]).filter(e=>e&&e.date&&e.title&&key(Date.parse(e.date))===todayKey).sort((a,b)=>{const priOf=e=>{const i=ffNormImpact(e.impact);return i==='high'?0:i==='med'?1:i==='holiday'?2:3;};return priOf(a)-priOf(b)||Date.parse(a.date)-Date.parse(b.date);});
  if(!data.length)return'<div class="hint">خبری برای امروز از Forex Factory ثبت نشده است.</div>';
  return data.map(e=>{const at=Date.parse(e.date);const im=IMP[ffNormImpact(e.impact)]||IMP.low;
   const actual=e.actual??e.Actual??'',forecast=e.forecast??e.Forecast??'',previous=e.previous??e.Previous??'';
