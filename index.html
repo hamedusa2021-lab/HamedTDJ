@@ -1094,11 +1094,11 @@ function newsForm(e){formModal(e?'ویرایش رویداد':'رویداد خب�
 function strikeLadder(refPrice,symName){const list=(DB.strikes||[]).filter(s=>s.en!==false).sort((a,b)=>(+a.price)-(+b.price));
  if(!list.length)return'<span class="hint">سطح مهمی ثبت نشده - <button class="btn ghost sm" data-act="stkMgr">مدیریت ⬎</button></span>';
  let nearId=null;if(refPrice){let bd=Infinity;list.forEach(s=>{if(s.symbol&&symName&&s.symbol!==symName)return;const d=Math.abs(refPrice-s.price);if(d<bd){bd=d;nearId=s.id;}});}
- const head='<div class="listRow" style="background:var(--p3);font-size:11px;border-color:var(--line2);align-items:center;padding:4px 8px"><span style="font-size:14px">📌</span><b class="ltr" style="min-width:72px">قیمت</b><b class="ltr" style="min-width:72px">سایز</b><b>سمبل</b><b class="mut">فاصله</b></div>';
+ const head='<div class="listRow" style="background:var(--p3);font-size:11px;border-color:var(--line2);align-items:center;padding:2px 8px;gap:6px;line-height:1.2><span style="font-size:14px">📌</span><b class="ltr" style="min-width:72px">قیمت</b><b class="ltr" style="min-width:72px">سایز</b><b>سمبل</b><b class="mut">فاصله</b></div>';
  return head+list.map(s=>{let d='-';
   if(refPrice&&(!s.symbol||s.symbol===symName)){const ps=symOf(s.symbol).pipSize;const pip=+ps>0?ps:1e-4;const pips=Math.abs(refPrice-s.price)/pip;if(pips<9999)d=pips.toFixed(0)+'p';}
   const star=s.hl?'⭐':'💵'; const hasB=/b/i.test(String(s.size||''));
-  return'<div class="listRow" style="margin-bottom:3px;padding:4px 8px;align-items:center"><span style="font-size:14px">'+star+'</span><b class="ltr" style="min-width:72px;'+(hasB?'color:var(--amb);font-weight:700;':'')+'">'+s.price+'</b><b class="ltr" style="'+(hasB?'color:var(--amb);font-weight:700;':'color:var(--acc2);')+'min-width:72px">'+esc(s.size||'')+'</b><span class="pill ltr" style="font-size:9.5px">'+esc(s.symbol||'-')+'</span>'+(s.id===nearId?'<span class="pill" style="font-size:9px">نزدیک‌ترین</span>':'')+'<span class="mut ltr">'+d+'</span></div>';}).join('');}
+  return'<div class="listRow" style="margin-bottom:3px;padding:2px 8px;align-items:center;gap:6px;line-height:1.2><span style="font-size:14px">'+star+'</span><b class="ltr" style="min-width:72px;'+(hasB?'color:var(--amb);font-weight:700;':'')+'">'+s.price+'</b><b class="ltr" style="'+(hasB?'color:var(--amb);font-weight:700;':'color:var(--acc2);')+'min-width:72px">'+esc(s.size||'')+'</b><span class="pill ltr" style="font-size:9.5px">'+esc(s.symbol||'-')+'</span>'+(s.id===nearId?'<span class="pill" style="font-size:9px">نزدیک‌ترین</span>':'')+'<span class="mut ltr">'+d+'</span></div>';}).join('');}
 
 function stkForm(s,reopen){formModal(s?'ویرایش سطح':'سطح اپشن جدید',[
  {k:'price',l:'عدد / قیمت (مثلاً 1.1670)',t:'number',step:'any'},
