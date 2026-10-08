@@ -756,7 +756,7 @@ function filtered(){const j=UI.jq;let f=accTrades().filter(t=>t.status==='closed
  if(j.mist)f=f.filter(t=>(t.mistakes||[]).includes(j.mist));
  if(j.res==='w')f=f.filter(t=>netPL(t)>0);if(j.res==='l')f=f.filter(t=>netPL(t)<0);if(j.res==='b')f=f.filter(t=>netPL(t)===0);
  if(j.cs)f=f.filter(t=>(t.checklist?t.checklist.score:0)>=num(j.cs));
- const k=UI.jq.k,d=UI.jq.d;return f.sort((a,b)=>{const va=colVal(a,k),vb=colVal(b,k);return(va<vb?-1:va>vb?1:0)*d;});}
+ const k=UI.jq.k||'closedAt',d=UI.jq.k?UI.jq.d:-1;return f.sort((a,b)=>{const va=colVal(a,k),vb=colVal(b,k);return(va<vb?-1:va>vb?1:0)*d;});}
 VIEWS.analytics=m=>{const all=accTrades();const s=calcStats(all);
  const dimSel=['symbol','session','strategy','setup','tf','weekday','psych','regime','exitType','cs','mistakes'].map(d=>`<option value="${d}" ${UI.anaDim===d?'selected':''}>${d}</option>`).join('');
  const groups=groupStats(all.filter(t=>t.status==='closed'),UI.anaDim);
