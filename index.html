@@ -92,6 +92,7 @@ tr.rowc:hover{background:rgba(139,124,255,.06)}
 .listRow{display:flex;align-items:center;gap:8px;background:var(--p2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:7px;transition:.12s}
 .listRow:hover{border-color:var(--line2)}
 .listRow.dragging{opacity:.4;border-style:dashed}
+.flItem.dragging{opacity:.4}
 .grip{cursor:grab;color:var(--mut2);font-size:15px;user-select:none}
 /* [پچ ۸] direction:ltr برای تایم‌لاین تا در RTL آینه نشود */
 .tl{direction:ltr;position:relative;height:52px;background:var(--p2);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:10px 0 4px}
@@ -819,6 +820,7 @@ VIEWS.news=m=>{
  ffRenderLive();
 };
 VIEWS.plan=m=>{const p=DB.plan;
+ if(!Array.isArray(p.flow)){const src=p.entryModel||'Liquidity Sweep ➜ BOS ➜ FVG Retest ➜ Confirmation ➜ ENTRY';p.flow=src.split(/\s*(?:→|➜|»|›|\||->)\s*/).map(s=>s.trim()).filter(Boolean).map(x=>({id:uid(),text:x}));persist(true);}
  const listEd=(key,title)=>`<div class="f"><label>${title}</label><div id="pl_${key}">${(p[key]||[]).map((x,i)=>`<div class="listRow"><span style="flex:1">${esc(x)}</span><button class="btn ghost sm" data-act="plDel" data-k="${key}" data-i="${i}">🗑</button></div>`).join('')||'<span class="hint">—</span>'}</div><div class="row"><input id="pl_${key}_in" placeholder="مورد جدید…"><button class="btn ghost sm" data-act="plAdd" data-k="${key}">+</button></div></div>`;
  m.innerHTML=`<div class="card glow"><div class="chd"><h3>🧭 TRADING PLAN</h3><button class="btn ok sm" data-act="plSave">💾 ذخیره</button></div>
  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
@@ -831,11 +833,23 @@ VIEWS.plan=m=>{const p=DB.plan;
  <div class="f"><label>Psychology Rules</label><input id="pls_psych" value="${esc(p.psych||'')}"></div>
  </div>
  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:14px">${listEd('do','✅ DO')}${listEd('dont','⛔ DON\'T')}</div>
- <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
- <div class="row" style="margin-bottom:8px"><h3 style="font-size:13px;margin:0">????? ???? (تصاویر)</h3><button class="btn ok sm" data-act="plImgAdd" style="margin-inline-start:auto">+ ???? ????</button></div>
+ 
+<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+ <div class="row" style="margin-bottom:8px"><h3 style="font-size:13px;margin:0">مجرای ورود (فلوچارت)</h3><button class="btn ok sm" data-act="flAdd" style="margin-inline-start:auto">+ گام</button></div>
+ <div class="hint" style="margin-bottom:10px">مراحل مدل ورودت رو اینجا بساز: متن رو تغییر بده، با درگ مرتب کن، ✕ = حذف. آخرین گام خودکار هایلایت می‌شه.</div>
+ <div id="flowWrap" style="display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:6px 2px 10px">${(p.flow||[]).map((s,i)=>`<div class="flItem" data-id="${s.id}" style="display:flex;align-items:stretch;flex:0 0 auto">
+ <div style="display:flex;align-items:center;gap:8px;background:var(--p2);border:1px solid ${i===p.flow.length-1?'var(--acc2)':'var(--line)'};border-radius:11px;padding:8px 10px;min-width:150px;${i===p.flow.length-1?'box-shadow:0 0 14px rgba(34,211,238,.25);':''}">
+ <span style="color:var(--mut);font-size:10px;font-weight:700">${i+1}</span>
+ <input data-fl="${s.id}" value="${esc(s.text)}" onchange="ACT.flEdit(this.dataset.fl,this.value)" style="background:transparent;border:none;padding:0;width:130px;font-weight:600" placeholder="نام گام">
+ <button class="btn ghost sm" data-act="flDel" data-id="${s.id}" style="padding:0 6px">✕</button></div>
+ ${i<p.flow.length-1?'<div style="align-self:center;color:var(--acc);font-size:17px;padding:0 7px;transform:scaleX(-1)">➜</div>':''}</div>`).join('')||'<span class="hint">هنوز گامی اضافه نشده — دکمه «+ گام» رو بزن.</span>'}</div>
+</div>
+<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+ <div class="row" style="margin-bottom:8px"><h3 style="font-size:13px;margin:0">مدل‌های ورود (تصاویر)</h3><button class="btn ok sm" data-act="plImgAdd" style="margin-inline-start:auto">+ افزودن تصویر</button></div>
  <div class="hint" style="margin-bottom:10px">تصاویر مدل ورود خودت رو اینجا آپلود کن. فایل‌ها فشرده (حداکثر 1200px) و داخل مرورگر ذخیره می‌شن. کلیک روی تصویر = نمایش بزرگ؛ دکمه ✕ = حذف.</div>
  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${(p.entryImgs||[]).map((src,i)=>`<div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line)"><img src="${src}" data-act="plImgView" data-i="${i}" style="width:100%;aspect-ratio:4/3;object-fit:cover;cursor:zoom-in;display:block" alt="entry model ${i+1}"><button class="btn ghost sm" data-act="plImgDel" data-i="${i}" style="position:absolute;top:4px;inset-inline-end:4px;background:rgba(3,5,10,.8)">✕</button></div>`).join('')||'<span class="hint">هنوز تصویری اضافه نشده.</span>'}</div></div>
-</div>`;};
+</div>`;
+ enableDrag($('#flowWrap'),'.flItem',ids=>{DB.plan.flow=reorderById(DB.plan.flow,ids);persist(true);});};
 VIEWS.rules=m=>{m.innerHTML=`<div class="card"><div class="chd"><h3>⚖️ TRADING RULES</h3><button class="btn ok sm" data-act="ruleAdd">+ قانون جدید</button></div>
  <div class="hint" style="margin-bottom:10px">قوانین Blocking در گیت ورود نمایش داده می‌شوند و باید در صفحه چک‌لیست تأیید شوند. ترتیب با درگ قابل تغییر است.</div>
  <div id="ruleList">${DB.rules.map(r=>`<div class="listRow" draggable="true" data-id="${r.id}" style="${r.en?'':'opacity:.45'}">
@@ -1042,6 +1056,9 @@ const ACT={
  plAdd:d=>{const inp=$('#pl_'+d.k+'_in');const v=inp.value.trim();if(!v)return;DB.plan[d.k]=DB.plan[d.k]||[];DB.plan[d.k].push(v);persist(true);render();},
  plDel:d=>{DB.plan[d.k].splice(+d.i,1);persist(true);render();},
  plSave:()=>{['strategy','entryModel','htfBias','confirmation','slModel','tpModel'].forEach(k=>{const el=$('#pls_'+k);if(el)DB.plan[k]=el.value;});DB.plan.minRR=num($('#pls_minRR').value)||2;DB.plan.daily=$('#pls_daily').value;DB.plan.weekly=$('#pls_weekly').value;DB.plan.news=$('#pls_news').value;DB.plan.sess=$('#pls_sess').value;DB.plan.psych=$('#pls_psych').value;persist(true);toast('پلن ذخیره شد','ok');},
+ flAdd:()=>{DB.plan.flow=Array.isArray(DB.plan.flow)?DB.plan.flow:[];DB.plan.flow.push({id:uid(),text:'گام جدید'});persist(true);render();},
+ flDel:d=>{DB.plan.flow=(DB.plan.flow||[]).filter(x=>x.id!==d.id);persist(true);render();},
+ flEdit:(id,val)=>{const s=(DB.plan.flow||[]).find(x=>x.id===id);const v=(val||'').trim();if(s&&v){s.text=v;persist(true);}},
  plImgAdd:()=>{const fi=$('#fileIn');fi.accept='image/*';fi.onchange=e=>{const f=e.target.files[0];if(!f)return;if((DB.plan.entryImgs||[]).length>=15){toast('حداکثر 15 تصویر','err');return;}compress(f,src=>{DB.plan.entryImgs=DB.plan.entryImgs||[];DB.plan.entryImgs.push(src);persist(true);render();toast('تصویر اضافه شد','ok');},1200,.75);};fi.value='';fi.click();},
  plImgDel:d=>{DB.plan.entryImgs.splice(+d.i,1);persist(true);render();},
  plImgView:d=>{const s=DB.plan.entryImgs&&DB.plan.entryImgs[+d.i];if(s)lightbox(s);},
