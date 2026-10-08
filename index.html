@@ -693,9 +693,9 @@ function drawSS(){$('#ssList').innerHTML=UI.ss.map((d,i)=>`<div style="position:
 function liveCalc(){const e=num($('#fEntry')?.value),s=num($('#fSL')?.value),tp=num($('#fTP')?.value);if(!$('#fEntry'))return;
  const symN=$('#fSym').value,dir=$('#fDir').value;
  const r=riskCalc(balance(),num($('#fRisk').value)||acc().riskPct||1,e,s,symN,dir);
- const out=$('#rcOut');if(out){out.innerHTML=r.err?`<span style="color:var(--sell)">${esc(r.err)}</span>`:`<div class="kv" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))">
+ UI.rcLot=r.lot||0;const out=$('#rcOut');if(out){out.innerHTML=r.err?`<span style="color:var(--sell)">${esc(r.err)}</span>`:`<div class="kv" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))">
  <div><span class="k">Risk $</span><span class="v ltr">${r.riskMoney}</span></div><div><span class="k">Stop Distance</span><span class="v ltr">${r.dist}</span></div>
- <div><span class="k">Pips</span><span class="v ltr">${r.pips}</span></div><div><span class="k">Position Size</span><span class="v ltr pos">${r.lot}</span></div>
+ <div><span class="k">Pips</span><span class="v ltr">${r.pips}</span></div><div><span class="k">Position Size</span><span class="v ltr pos">${r.lot}</span> <button class="btn ghost sm" data-act="rcUseLot" title="Use suggested lot">Use</button></div>
  <div><span class="k">R:R</span><span class="v ltr">${tp?(r2(Math.abs(tp-e)/Math.abs(e-s))):'—'}</span></div>
  <div><span class="k">Potential Profit</span><span class="v ltr pos">${tp?fmtM(Math.abs(tp-e)/Math.abs(e-s)*r.riskMoney):'—'}</span></div>
  <div><span class="k">Potential Loss</span><span class="v ltr neg">-${r.riskMoney}</span></div></div>`;}
@@ -943,6 +943,7 @@ const ACT={
  symDup:d=>{const s=DB.symbols.find(x=>x.id===d.id);DB.symbols.push({...JSON.parse(JSON.stringify(s)),id:uid(),name:s.name+'C'});persist(true);render();},
  symDel:d=>{if(!confirm('حذف نماد؟'))return;DB.symbols=DB.symbols.filter(x=>x.id!==d.id);persist(true);render();},
  rcGo:()=>liveCalc(),
+  rcUseLot:()=>{if(UI.rcLot){$('#fLot').value=UI.rcLot;liveCalc();toast('Suggested lot applied','ok');}},
  ssAdd:()=>{const fi=$('#fileIn');fi.accept='image/*';fi.onchange=e=>{const f=e.target.files[0];if(!f)return;compress(f,d=>{UI.ss.push(d);drawSS();});fi.value='';};fi.click();},
  /* [پچ ۶] Override از UI.ovrReason می‌خواند — قبلاً #ovrReason که فقط در صفحه چک‌لیست وجود داشت */
  ntSave:()=>{const g=gateEval({rr:rrNow(),news:$('#fNews').value,riskPct:num($('#fRisk').value),session:$('#fSess').value==='custom-none'?'custom-none':null});
@@ -952,7 +953,7 @@ const ACT={
   if($('#fDir').value==='buy'&&tp&&tp<=e)return toast('در Buy حد سود باید بالاتر از Entry باشد','err');
   if($('#fDir').value==='buy'&&s>=e)return toast('SL must be below Entry','err');if($('#fDir').value==='sell'&&tp&&tp>=e)return toast('در Sell حد سود باید پایین‌تر از Entry باشد','err');
   if($('#fDir').value==='sell'&&s<=e)return toast('SL must be above Entry','err');const gs=gateScore();const cf={};$$('[data-cf]').forEach(el=>{if(el.value!=='')cf[el.dataset.cf]=el.value;});
-  DB.trades.push({id:uid(),accountId:acc().id,symbol:$('#fSym').value,dir:$('#fDir').value,entry:e,sl:s,tp:tp||null,lot,riskPct:rp,riskMoney:r2(balance()*rp/100),
+  DB.trades.push({id:uid(),accountId:acc().id,symbol:$('#fSym').value,dir:$('#fDir').value,entry:e,sl:s,tp:tp||null,lot,riskPct:(()=>{const s=symOf($('#fSym').value);const ps=+s.pipSize>0?s.pipSize:1e-4;const pips=Math.abs(e-s)/ps;const rr=lot*pips*(+s.pipValue||0);return rr>0?r2(rr/balance()*100):rp;})(),riskMoney:(()=>{const s=symOf($('#fSym').value);const ps=+s.pipSize>0?s.pipSize:1e-4;const pips=Math.abs(e-s)/ps;const rr=lot*pips*(+s.pipValue||0);return rr>0?r2(rr):r2(balance()*rp/100);})(),
    openedAt:Date.now(),strategy:$('#fStrat').value.trim()||'—',setup:$('#fSetup').value.trim()||'—',
    session:$('#fSess').value==='__auto'?(activeSessions().map(x=>x.name).join(' + ')||'custom-none'):$('#fSess').value,
    tf:$('#fTF').value,bias:$('#fBias').value,regime:$('#fReg').value,news:$('#fNews').value,
