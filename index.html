@@ -378,7 +378,7 @@ function floatR(t){return t.riskMoney?r2(floatPL(t)/t.riskMoney):0;}
 function pipsOf(t){const s=symOf(t.symbol);const ps=+s.pipSize>0?s.pipSize:1e-4;return r2((t.legs||[]).reduce((a,l)=>a+(l.price-t.entry)*dirMul(t)/ps*(+l.pct||0)/100,0));}
 function balance(){return r2(acc().start+accTrades().filter(t=>t.status==='closed').reduce((a,t)=>a+netPL(t),0));}
 function equity(){return r2(balance()+accTrades().filter(t=>t.status==='open').reduce((a,t)=>a+floatPL(t),0));}
-function riskCalc(balanceN,riskPct,entry,sl,sym,dir){const s=symOf(sym);if(!entry||!sl||entry===sl)return{err:'Entry و SL را وارد کنید'};const riskMoney=r2(balanceN*riskPct/100);const dist=Math.abs(entry-sl);const pips=dist/(+s.pipSize>0?s.pipSize:1e-4);const perPip=+s.pipValue||0;const lot=Math.max(0,Math.floor((riskMoney/(pips*perPip||1))*100)/100);const r=lot*pips*perPip;return{riskMoney,pips:r2(pips),dist:r2(dist),lot:r2(lot),riskReal:r2(r)};}
+function riskCalc(balanceN,riskPct,entry,sl,sym,dir){const s=symOf(sym);if(!entry||!sl||entry===sl)return{err:'Entry و SL را وارد کنید'};const riskMoney=r2(balanceN*riskPct/100);const dist=Math.abs(entry-sl);const pips=dist/(+s.pipSize>0?s.pipSize:1e-4);const perPip=+s.pipValue||0;const lot=Math.max(0,Math.floor((riskMoney/(pips*perPip||1))*100+0.0001)/100);const r=lot*pips*perPip;return{riskMoney,pips:r2(pips),dist:r2(dist),lot:r2(lot),riskReal:r2(r)};}
 /* ============================ SESSIONS ENGINE ============================ */
 /* [پچ ۹] جستجو تا ۷ روز جلوتر — شمارش معکوس آخر هفته درست می‌شود */
 function sessInfo(s,now){now=now??Date.now();const p=zParts(now,s.tz);const out={open:false,start:0,end:0,next:0};
