@@ -260,7 +260,7 @@ function defaultDB(){const a1=uid();
  ck.forEach(q=>{if(q.id==='__rng')q.cond={q:ck[0].id,op:'eq',v:'Range'};if(q.text.startsWith('جعبه خبر'))q.cond={q:ck[4].id,op:'neq',v:'No'};});
  return{
  v:1,app:'td-os',
- settings:{displayTz:'Asia/Tehran',sound:false,notif:true,beR:1.5,partialsPlan:'25,25,50',autoSession:true,minScore:70,maxRiskPct:1,minRR:2,cooldownMin:30,newsWindowMin:30,newsBlock:true},
+ settings:{displayTz:'Asia/Tehran',sound:true,notif:true,beR:1.5,partialsPlan:'25,25,50',autoSession:true,minScore:70,maxRiskPct:1,minRR:2,cooldownMin:30,newsWindowMin:30,newsBlock:true},
  activeAcc:null,
  accounts:[{id:a1,name:'حساب شخصی',type:'real',broker:'—',start:10000,riskPct:1,prop:{targetPct:0,dailyLossPct:0,maxDDPct:0}}],
  symbols:[
@@ -1435,7 +1435,7 @@ function cloudBoot(){
   }catch(e){}
   clBoot(false);
 }
-(async()=>{await loadDB();buildNav();fillAcc();updSnd();render();tick();ffLoadCache();ffFetch(false);setInterval(()=>{if(UI.page==='news')ffRenderLive();},1000);setInterval(()=>{ffFetch(false);},FF_CACHE_TTL);cloudBoot();})();
+(async()=>{await loadDB();DB.settings.sound=true;buildNav();fillAcc();updSnd();render();tick();ffLoadCache();ffFetch(false);setInterval(()=>{if(UI.page==='news')ffRenderLive();},1000);setInterval(()=>{ffFetch(false);},FF_CACHE_TTL);cloudBoot();})();
 })();
 </script>
 <script>
