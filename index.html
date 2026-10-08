@@ -714,19 +714,20 @@ function updateNtGate(){const e=num($('#fEntry').value),s=num($('#fSL').value),t
 VIEWS.positions=m=>{const open=accTrades().filter(t=>t.status==='open');
  const beTrigR=num(DB.settings.beR);
  const beReady=open.filter(t=>!t.beMoved&&floatR(t)>=beTrigR);
+ UI._beSig=open.map(t=>t.id+(t.beMoved?'M':(floatR(t)>=beTrigR?'R':''))).join('|');
  m.innerHTML=`<div class="card"><div class="chd"><h3>🛡 BREAK EVEN ENGINE</h3><span class="hint">تریگر: <b class="ltr">+${beTrigR}R</b> (قابل تغییر در تنظیمات) · ${beReady.length} پوزیشن آماده</span></div>
- ${open.length?`<div class="row">${open.map(t=>{const fr=floatR(t);const ready=!t.beMoved&&fr>=beTrigR;
+ ${open.length?`<div class="row" id="beEngine">${open.map(t=>{const fr=floatR(t);const ready=!t.beMoved&&fr>=beTrigR;
  return`<div class="stat" style="min-width:210px;${t.beMoved?'border-color:var(--amb)':ready?'border-color:rgba(22,199,132,.6)':''}">
  <div class="row" style="justify-content:space-between"><b class="ltr">${esc(t.symbol)} ${t.dir==='buy'?'🟢':'🔴'}</b>${t.beMoved?'<span class="pill s-a" style="font-size:9.5px">BE ✓ انجام شد</span>':(ready?'<span class="pill s-g" style="font-size:9.5px">آماده BE</span>':'')}</div>
  <div class="bignum ltr ${signCls(fr)}" style="font-size:18px;margin:4px 0">${fmtR(fr)}</div>
  <div class="wl mut">SL فعلی: <span class="ltr">${t.sl}</span> · BE: <span class="ltr">${t.entry}</span></div>
  <div class="row" style="margin-top:8px">${t.beMoved?`<button class="btn ghost sm" data-act="beUndo" data-id="${t.id}">↺ بازگردانی SL</button>`:`<button class="btn ${ready?'ok':'ghost'} sm" data-act="beMove" data-id="${t.id}">🛡 SL به BE (${t.entry})</button>`}</div></div>`;}).join('')}</div>`:'<div class="hint">پوزیشن بازی نیست — پس از باز کردن معامله، وضعیت BE اینجا نمایش داده می‌شود.</div>'}</div>
  <div class="card"><div class="chd"><h3>📊 OPEN POSITIONS</h3><span class="mut">${open.length} پوزیشن باز · Float: <b class="ltr ${signCls(open.reduce((a,t)=>a+floatPL(t),0))}">${fmtU(open.reduce((a,t)=>a+floatPL(t),0))} $</b></span></div>
- ${open.length?`<div class="tw"><table><thead><tr><th>Symbol</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th><th>Lot</th><th>Risk $</th><th>Current</th><th>Float P/L</th><th>Float R</th><th>Time</th><th></th></tr></thead><tbody>
- ${open.map(t=>{const beHit=!t.beMoved&&floatR(t)>=beTrigR;
+ ${open.length?`<div class="tw"><table><thead><tr><th>Symbol</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th><th>Lot</th><th>Risk $</th><th>Current</th><th>Realized</th><th>Float P/L</th><th>Float R</th><th>Time</th><th></th></tr></thead><tbody>
+ ${open.map(t=>{const beHit=!t.beMoved&&floatR(t)>=beTrigR;const rz=r2((t.legs||[]).reduce((a,l)=>a+legPL(t,l),0));
  return`<tr data-tid="${t.id}"><td class="ltr"><b>${esc(t.symbol)}</b></td><td>${t.dir==='buy'?'🟢 BUY':'🔴 SELL'}</td><td class="ltr">${t.entry}</td><td class="ltr">${t.sl}</td><td class="ltr">${t.tp??'—'}</td><td class="ltr">${t.lot}</td><td class="ltr">${t.riskMoney}</td>
  <td><input type="number" step="any" value="${t.cur??''}" data-cur="${t.id}" placeholder="قیمت فعلی" style="width:95px;padding:4px 6px"></td>
- <td class="ltr ${signCls(floatPL(t))}" data-fl="${t.id}">${fmtU(floatPL(t))}</td><td class="ltr ${signCls(floatR(t))}" data-fr="${t.id}">${fmtR(floatR(t))}</td>
+ <td class="ltr ${signCls(rz)}">${fmtU(rz)}</td><td class="ltr ${signCls(floatPL(t))}" data-fl="${t.id}">${fmtU(floatPL(t))}</td><td class="ltr ${signCls(floatR(t))}" data-fr="${t.id}">${fmtR(floatR(t))}</td>
  <td class="ltr mut" data-hd="${t.id}">${fmtDur(Date.now()-t.openedAt)}</td>
  <td><div class="row" style="gap:2px">${t.beMoved?'<span class="pill s-a" style="font-size:9px">BE✓</span>':`<button class="btn ${beHit?'warn':'ghost'} sm" data-act="beMove" data-id="${t.id}" title="SL به BE${beHit?' — تریگر فعال':' (دستی)'}">🛡 BE</button>`}<button class="btn ghost sm" data-act="partial" data-id="${t.id}">⤴ Partial</button><button class="btn ok sm" data-act="closeTrade" data-id="${t.id}">✓ Close</button><button class="btn ghost sm" data-act="tradeOpen" data-id="${t.id}">👁</button></div></td></tr>`;}).join('')}</tbody></table></div>`:'<div class="hint">پوزیشن بازی وجود ندارد. از «معامله جدید» ثبت کنید.</div>'}</div>`;};
 VIEWS.journal=m=>{const f=filtered();
@@ -969,7 +970,7 @@ const ACT={
    {k:'price',l:'قیمت خروج',t:'number'},
    {k:'type',l:'نوع',t:'select',opts:['TP','SL','Manual','BE','Time']}],
   {lots:'',pct:num((DB.settings.partialsPlan||'25').split(',')[0]),price:num(t.cur)||t.entry,type:'Manual'},
-  o=>{let p=num(o.pct);let lotsIn=num(o.lots);
+  o=>{if(!num(o.price))return toast('قیمت پارشال الزامی است','err');let p=num(o.pct);let lotsIn=num(o.lots);
    if(lotsIn>0){lotsIn=Math.min(lotsIn,remLot);p=t.lot>0?(lotsIn/t.lot*100):0;}
    if(!(p>0))return toast('درصد یا لات را وارد کنید','err');
    p=Math.min(p,rem);
@@ -1234,7 +1235,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{
  const anr=e.target.closest('[data-ansr]');if(anr){DB.answers[anr.dataset.ansr]=+anr.value;anr.nextElementSibling.textContent=anr.value;persist();return;}
  const ant=e.target.closest('[data-anst]');if(ant){DB.answers[ant.dataset.anst]=ant.value;persist();return;}
- const cur=e.target.closest('[data-cur]');if(cur){const t=DB.trades.find(x=>x.id===cur.dataset.cur);if(t){t.cur=num(cur.value)||null;persist();const fl=$(`[data-fl="${t.id}"]`);if(fl){fl.textContent=fmtU(floatPL(t));fl.className='ltr '+signCls(floatPL(t));}const fr=$(`[data-fr="${t.id}"]`);if(fr){fr.textContent=fmtR(floatR(t));fr.className='ltr '+signCls(floatR(t));}}return;}
+ const cur=e.target.closest('[data-cur]');if(cur){const t=DB.trades.find(x=>x.id===cur.dataset.cur);if(t){t.cur=num(cur.value)||null;persist();const fl=$(`[data-fl="${t.id}"]`);if(fl){fl.textContent=fmtU(floatPL(t));fl.className='ltr '+signCls(floatPL(t));}const fr=$(`[data-fr="${t.id}"]`);if(fr){fr.textContent=fmtR(floatR(t));fr.className='ltr '+signCls(floatR(t));}const beEl=$('#beEngine');if(beEl){const op=accTrades().filter(x=>x.status==='open');const sig=op.map(x=>x.id+(x.beMoved?'M':(floatR(x)>=num(DB.settings.beR)?'R':''))).join('|');if(sig!==UI._beSig){UI._beSig=sig;render();}}}return;}
  if(e.target.id==='ovrReason'||e.target.id==='ntOvrReason')UI.ovrReason=e.target.value;else if(e.target.id==='ovrChk'||e.target.id==='ntOvrChk'){UI.ovr=e.target.checked;persist();var _g=gateEval();var _gp=document.getElementById('gatePanel');if(_gp)_gp.innerHTML=gatePanelHTML(_g);var _ng=document.getElementById('ntGateWhy');if(_ng)updateNtGate();}
 });
 document.addEventListener('change',e=>{
