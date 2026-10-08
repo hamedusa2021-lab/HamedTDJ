@@ -283,7 +283,7 @@ function defaultDB(){const a1=uid();
   {id:uid(),text:'۳۰ دقیقه قبل و بعد خبر قرمز معامله نمی‌کنم',type:'news',priority:1,en:true,blocking:true,warning:false},
   {id:uid(),text:'حداکثر ریسک هر معامله مطابق تنظیمات',type:'risk',priority:2,en:true,blocking:true,warning:false},
   {id:uid(),text:'بعد از ۲ باخت متوالی ۳۰ دقیقه استراحت',type:'psychology',priority:2,en:true,blocking:false,warning:true}],
- plan:{strategy:'Liquidity Sweep + ICT Concepts',entryModel:'Sweep → BOS → FVG Retest',htfBias:'Daily / H4 Structure',confirmation:'Candle Close + displacement',slModel:'پشت نقدینگی یا Swing',tpModel:'Liquidity Pool مقابل / RR ثابت',minRR:2,entryImgs:[],
+ plan:{strategy:'Liquidity Sweep + ICT Concepts',entryModel:'Sweep → BOS → FVG Retest',htfBias:'Daily / H4 Structure',confirmation:'Candle Close + displacement',slModel:'پشت نقدینگی یا Swing',tpModel:'Liquidity Pool مقابل / RR ثابت',minRR:2,
   daily:'حداکثر ۳ معامله در روز',weekly:'هفته را با سود یا بدون ضرر ببند',
   do:['فقط سشن‌های پرحجم','ثبت فوری معامله در ژورنال','رعایت مدیریت ریسک'],
   dont:['معامله در خبر قرمز','Revenge Trading','جابه‌جایی SL به ضرر'],
@@ -820,7 +820,8 @@ VIEWS.news=m=>{
  ffRenderLive();
 };
 VIEWS.plan=m=>{const p=DB.plan;
- if(!Array.isArray(p.flow)){const src=p.entryModel||'Liquidity Sweep ➜ BOS ➜ FVG Retest ➜ Confirmation ➜ ENTRY';p.flow=src.split(/\s*(?:→|➜|»|›|\||->)\s*/).map(s=>s.trim()).filter(Boolean).map(x=>({id:uid(),text:x}));persist(true);}
+ if(!Array.isArray(p.flow)){const src=p.entryModel||'Liquidity Sweep ➜ BOS ➜ FVG Retest ➜ Confirmation ➜ ENTRY';p.flow=src.split(/\s*(?:→|➜|»|›|\||->)\s*/).map(s=>s.trim()).filter(Boolean).map(x=>({id:uid(),name:x,img:null}));persist(true);}else{let ch=false;p.flow.forEach(s=>{if(!('name' in s)){s.name=s.text||'';delete s.text;ch=true;}if(!('img' in s)){s.img=null;ch=true;}});if(ch)persist(true);}
+ if(Array.isArray(p.entryImgs)){p.entryImgs.forEach(im=>p.flow.push({id:uid(),name:'',img:im}));delete p.entryImgs;persist(true);}
  const listEd=(key,title)=>`<div class="f"><label>${title}</label><div id="pl_${key}">${(p[key]||[]).map((x,i)=>`<div class="listRow"><span style="flex:1">${esc(x)}</span><button class="btn ghost sm" data-act="plDel" data-k="${key}" data-i="${i}">🗑</button></div>`).join('')||'<span class="hint">—</span>'}</div><div class="row"><input id="pl_${key}_in" placeholder="مورد جدید…"><button class="btn ghost sm" data-act="plAdd" data-k="${key}">+</button></div></div>`;
  m.innerHTML=`<div class="card glow"><div class="chd"><h3>🧭 TRADING PLAN</h3><button class="btn ok sm" data-act="plSave">💾 ذخیره</button></div>
  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
@@ -836,38 +837,19 @@ VIEWS.plan=m=>{const p=DB.plan;
  
 <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
  <div class="row" style="margin-bottom:8px"><h3 style="font-size:13px;margin:0">مجرای ورود (فلوچارت)</h3><button class="btn ok sm" data-act="flAdd" style="margin-inline-start:auto">+ گام</button></div>
- <div class="hint" style="margin-bottom:10px">مراحل مدل ورودت رو اینجا بساز: متن رو تغییر بده، با درگ مرتب کن، ✕ = حذف. آخرین گام خودکار هایلایت می‌شه.</div>
- <div id="flowWrap" style="display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:6px 2px 10px">${(p.flow||[]).map((s,i)=>`<div class="flItem" data-id="${s.id}" style="display:flex;align-items:stretch;flex:0 0 auto">
- <div style="display:flex;align-items:center;gap:8px;background:var(--p2);border:1px solid ${i===p.flow.length-1?'var(--acc2)':'var(--line)'};border-radius:11px;padding:8px 10px;min-width:150px;${i===p.flow.length-1?'box-shadow:0 0 14px rgba(34,211,238,.25);':''}">
- <span style="color:var(--mut);font-size:10px;font-weight:700">${i+1}</span>
- <input data-fl="${s.id}" value="${esc(s.text)}" onchange="ACT.flEdit(this.dataset.fl,this.value)" style="background:transparent;border:none;padding:0;width:130px;font-weight:600" placeholder="نام گام">
- <button class="btn ghost sm" data-act="flDel" data-id="${s.id}" style="padding:0 6px">✕</button></div>
- ${i<p.flow.length-1?'<div style="align-self:center;color:var(--acc);font-size:17px;padding:0 7px;transform:scaleX(-1)">➜</div>':''}</div>`).join('')||'<span class="hint">هنوز گامی اضافه نشده — دکمه «+ گام» رو بزن.</span>'}</div>
+ <div class="hint" style="margin-bottom:10px">هر گام: اسم + شناسه + عکس (اختیاری). متن رو تغییر بده، عکس اضافه کن، با درگ مرتب کن، ✕ = حذف گام. آخرین گام خودکار هایلایت می‌شه.</div>
+ <div id="flowWrap" dir="ltr" style="display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:6px 2px 10px">${(p.flow||[]).map((s,i)=>`<div class="flItem" data-id="${s.id}" style="display:flex;align-items:stretch;flex:0 0 auto">
+ <div style="display:flex;flex-direction:column;align-items:stretch;gap:6px;background:var(--p2);border:1px solid ${i===p.flow.length-1?'var(--acc2)':'var(--line)'};border-radius:11px;padding:8px;width:165px;${i===p.flow.length-1?'box-shadow:0 0 14px rgba(34,211,238,.25);':''}">
+ <div style="display:flex;align-items:center;gap:6px">
+ <span style="color:var(--acc);font-size:11px;font-weight:800">${i+1}</span>
+ <span style="color:var(--mut2);font-size:9px;font-family:var(--mono)" title="شناسه گام">${String(s.id).slice(-4)}</span>
+ <button class="btn ghost sm" data-act="flDel" data-id="${s.id}" style="margin-inline-start:auto;padding:0 6px">✕</button></div>
+ <input data-fl="${s.id}" value="${esc(s.name||'')}" onchange="ACT.flEdit(this.dataset.fl,this.value)" style="background:transparent;border:none;padding:0;font-weight:600;width:100%" placeholder="نام گام">
+ ${s.img?`<img src="${s.img}" data-act="plImgView" data-fl="${s.id}" style="width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;cursor:zoom-in;display:block" alt="${esc(s.name||'step')}"><button class="btn ghost sm" data-act="flImgDel" data-id="${s.id}" style="font-size:9.5px;padding:1px 4px">حذف عکس</button>`:`<button class="btn ghost sm" data-act="flImg" data-id="${s.id}" style="font-size:10px;padding:3px 6px">📷 عکس</button>`}
+ </div>
+ ${i<p.flow.length-1?'<div style="align-self:center;color:var(--acc);font-size:17px;padding:0 7px">➜</div>':''}</div>`).join('')||'<span class="hint">هنوز گامی اضافه نشده — دکمه «+ گام» رو بزن.</span>'}</div>
 </div>
-<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
- <div class="row" style="margin-bottom:8px"><h3 style="font-size:13px;margin:0">مدل‌های ورود (تصاویر)</h3><button class="btn ok sm" data-act="plImgAdd" style="margin-inline-start:auto">+ افزودن تصویر</button></div>
- <div class="hint" style="margin-bottom:10px">تصاویر مدل ورود خودت رو اینجا آپلود کن. فایل‌ها فشرده (حداکثر 1200px) و داخل مرورگر ذخیره می‌شن. کلیک روی تصویر = نمایش بزرگ؛ دکمه ✕ = حذف.</div>
- <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${(p.entryImgs||[]).map((src,i)=>`<div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line)"><img src="${src}" data-act="plImgView" data-i="${i}" style="width:100%;aspect-ratio:4/3;object-fit:cover;cursor:zoom-in;display:block" alt="entry model ${i+1}"><button class="btn ghost sm" data-act="plImgDel" data-i="${i}" style="position:absolute;top:4px;inset-inline-end:4px;background:rgba(3,5,10,.8)">✕</button></div>`).join('')||'<span class="hint">هنوز تصویری اضافه نشده.</span>'}</div></div>
-</div>`;
- enableDrag($('#flowWrap'),'.flItem',ids=>{DB.plan.flow=reorderById(DB.plan.flow,ids);persist(true);});};
-VIEWS.rules=m=>{m.innerHTML=`<div class="card"><div class="chd"><h3>⚖️ TRADING RULES</h3><button class="btn ok sm" data-act="ruleAdd">+ قانون جدید</button></div>
- <div class="hint" style="margin-bottom:10px">قوانین Blocking در گیت ورود نمایش داده می‌شوند و باید در صفحه چک‌لیست تأیید شوند. ترتیب با درگ قابل تغییر است.</div>
- <div id="ruleList">${DB.rules.map(r=>`<div class="listRow" draggable="true" data-id="${r.id}" style="${r.en?'':'opacity:.45'}">
- <span class="grip">⠿</span><span class="pill" style="font-size:10px">${esc(r.type||'—')}</span><span style="flex:1">${esc(r.text)}</span>
- ${r.blocking?'<span class="pill s-r" style="font-size:10px">BLOCKING</span>':''}${r.warning?'<span class="pill s-a" style="font-size:10px">هشدار</span>':''}<span class="pill" style="font-size:10px">P${r.priority||3}</span>
- <button class="btn ghost sm" data-act="ruleTog" data-id="${r.id}">${r.en?'🟢':'⛔'}</button><button class="btn ghost sm" data-act="ruleEdit" data-id="${r.id}">✏️</button><button class="btn ghost sm" data-act="ruleDel" data-id="${r.id}">🗑</button></div>`).join('')||'<div class="hint">قانونی نیست</div>'}</div></div>`;
- enableDrag($('#ruleList'),'.listRow',ids=>{DB.rules=reorderById(DB.rules,ids);persist(true);});};
-VIEWS.accounts=m=>{m.innerHTML=`<div class="card"><div class="chd"><h3>🏦 ACCOUNTS</h3><button class="btn ok sm" data-act="accAdd">+ حساب جدید</button></div>
- <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">${DB.accounts.map(a=>{const saved=DB.activeAcc;DB.activeAcc=a.id;const bal=balance();DB.activeAcc=saved;
- const eq=bal+DB.trades.filter(t=>t.accountId===a.id&&t.status==='open').reduce((s,t)=>s+floatPL(t),0);
- return`<div class="qcard accCard ${a.id===DB.activeAcc?'on':''}"><div class="row" style="justify-content:space-between"><b>${esc(a.name)} ${a.id===DB.activeAcc?'<span class="pill s-g" style="font-size:10px">فعال</span>':''}</b>
- <span class="row" style="gap:2px"><button class="btn ghost sm" data-act="accAct" data-id="${a.id}">✔</button><button class="btn ghost sm" data-act="accEdit" data-id="${a.id}">✏️</button><button class="btn ghost sm" data-act="accDel" data-id="${a.id}">🗑</button></span></div>
- <div class="kv" style="grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px">
- <div><span class="k">Start</span><span class="v ltr">${fmtMoney(a.start)}</span></div><div><span class="k">Balance</span><span class="v ltr">${fmtMoney(bal)}</span></div>
- <div><span class="k">Equity</span><span class="v ltr">${fmtMoney(eq)}</span></div><div><span class="k">Risk %</span><span class="v ltr">${a.riskPct}%</span></div>
- <div><span class="k">Type</span><span class="v">${esc(a.type)}</span></div><div><span class="k">Broker</span><span class="v">${esc(a.broker||'—')}</span></div>
- ${a.type==='prop'?`<div><span class="k">Target</span><span class="v ltr">${a.prop?.targetPct||0}%</span></div><div><span class="k">Daily Loss</span><span class="v ltr">${a.prop?.dailyLossPct||0}%</span></div><div><span class="k">Max DD</span><span class="v ltr">${a.prop?.maxDDPct||0}%</span></div>`:''}
- </div></div>`;}).join('')}</div></div>`;};
+</div>`;};
 VIEWS.symbols=m=>{m.innerHTML=`<div class="card"><div class="chd"><h3>💱 SYMBOL MANAGER</h3><button class="btn ok sm" data-act="symAdd">+ نماد جدید</button></div>
  <div class="tw"><table><thead><tr><th>Symbol</th><th>Type</th><th>Digits</th><th>Pip Size</th><th>Pip Value/Lot</th><th>Contract</th><th>Tick</th><th></th></tr></thead><tbody>
  ${DB.symbols.map(s=>`<tr><td class="ltr"><b>${esc(s.name)}</b></td><td>${esc(s.type||'—')}</td><td class="ltr">${s.digits}</td><td class="ltr">${s.pipSize}</td><td class="ltr">${s.pipValue} $</td><td class="ltr">${s.contract}</td><td class="ltr">${s.tick??'—'}</td>
@@ -1056,12 +1038,13 @@ const ACT={
  plAdd:d=>{const inp=$('#pl_'+d.k+'_in');const v=inp.value.trim();if(!v)return;DB.plan[d.k]=DB.plan[d.k]||[];DB.plan[d.k].push(v);persist(true);render();},
  plDel:d=>{DB.plan[d.k].splice(+d.i,1);persist(true);render();},
  plSave:()=>{['strategy','entryModel','htfBias','confirmation','slModel','tpModel'].forEach(k=>{const el=$('#pls_'+k);if(el)DB.plan[k]=el.value;});DB.plan.minRR=num($('#pls_minRR').value)||2;DB.plan.daily=$('#pls_daily').value;DB.plan.weekly=$('#pls_weekly').value;DB.plan.news=$('#pls_news').value;DB.plan.sess=$('#pls_sess').value;DB.plan.psych=$('#pls_psych').value;persist(true);toast('پلن ذخیره شد','ok');},
- flAdd:()=>{DB.plan.flow=Array.isArray(DB.plan.flow)?DB.plan.flow:[];DB.plan.flow.push({id:uid(),text:'گام جدید'});persist(true);render();},
+ flAdd:()=>{DB.plan.flow=Array.isArray(DB.plan.flow)?DB.plan.flow:[];if(DB.plan.flow.length>=12){toast('حداکثر 12 گام','err');return;}DB.plan.flow.push({id:uid(),name:'گام جدید',img:null});persist(true);render();},
  flDel:d=>{DB.plan.flow=(DB.plan.flow||[]).filter(x=>x.id!==d.id);persist(true);render();},
- flEdit:(id,val)=>{const s=(DB.plan.flow||[]).find(x=>x.id===id);const v=(val||'').trim();if(s&&v){s.text=v;persist(true);}},
- plImgAdd:()=>{const fi=$('#fileIn');fi.accept='image/*';fi.onchange=e=>{const f=e.target.files[0];if(!f)return;if((DB.plan.entryImgs||[]).length>=15){toast('حداکثر 15 تصویر','err');return;}compress(f,src=>{DB.plan.entryImgs=DB.plan.entryImgs||[];DB.plan.entryImgs.push(src);persist(true);render();toast('تصویر اضافه شد','ok');},1200,.75);};fi.value='';fi.click();},
- plImgDel:d=>{DB.plan.entryImgs.splice(+d.i,1);persist(true);render();},
- plImgView:d=>{const s=DB.plan.entryImgs&&DB.plan.entryImgs[+d.i];if(s)lightbox(s);},
+ flEdit:(id,val)=>{const s=(DB.plan.flow||[]).find(x=>x.id===id);const v=(val||'').trim();if(s&&v){s.name=v;persist(true);}},
+ plImgView:d=>{const s=(DB.plan.flow||[]).find(x=>x.id===d.fl);if(s&&s.img)lightbox(s.img);},
+ flImg:d=>{const fi=$('#fileIn');fi.accept='image/*';fi.onchange=e=>{const f=e.target.files[0];if(!f)return;const s=(DB.plan.flow||[]).find(x=>x.id===d.id);if(!s)return;compress(f,src=>{s.img=src;persist(true);render();toast('عکس گام ذخیره شد','ok');},900,.72);};fi.value='';fi.click();},
+ flImgDel:d=>{const s=(DB.plan.flow||[]).find(x=>x.id===d.id);if(s&&s.img){s.img=null;persist(true);render();}},
+
  rvSave:()=>{DB.reviews[UI.week]={lesson:$('#rvL').value,plan:$('#rvP').value,goals:$('#rvG').value};persist(true);toast('بررسی هفتگی ذخیره شد','ok');},
  stSave:()=>{const tz=$('#stTz').value.trim();try{new Intl.DateTimeFormat('en',{timeZone:tz||'UTC'});DB.settings.displayTz=tz||'UTC';}catch(e){toast('Timezone نامعتبر — به UTC برگشت','warn');DB.settings.displayTz='UTC';}
   DB.settings.minScore=num($('#stMin').value)||70;DB.settings.maxRiskPct=num($('#stMaxRisk').value)||1;DB.settings.minRR=num($('#stMinRR').value)||2;DB.settings.beR=num($('#stBe').value)||1.5;DB.settings.cooldownMin=num($('#stCool').value)||0;
