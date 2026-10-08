@@ -726,7 +726,7 @@ VIEWS.positions=m=>{const open=accTrades().filter(t=>t.status==='open');
  ${open.map(t=>{const beHit=!t.beMoved&&floatR(t)>=beTrigR;
  return`<tr data-tid="${t.id}"><td class="ltr"><b>${esc(t.symbol)}</b></td><td>${t.dir==='buy'?'🟢 BUY':'🔴 SELL'}</td><td class="ltr">${t.entry}</td><td class="ltr">${t.sl}</td><td class="ltr">${t.tp??'—'}</td><td class="ltr">${t.lot}</td><td class="ltr">${t.riskMoney}</td>
  <td><input type="number" step="any" value="${t.cur??''}" data-cur="${t.id}" placeholder="قیمت فعلی" style="width:95px;padding:4px 6px"></td>
- <td class="ltr ${signCls(floatPL(t))}" data-fl="${t.id}">${fmtU(floatPL(t))}</td><td class="ltr ${signCls(floatR(t))}">${fmtR(floatR(t))}</td>
+ <td class="ltr ${signCls(floatPL(t))}" data-fl="${t.id}">${fmtU(floatPL(t))}</td><td class="ltr ${signCls(floatR(t))}" data-fr="${t.id}">${fmtR(floatR(t))}</td>
  <td class="ltr mut" data-hd="${t.id}">${fmtDur(Date.now()-t.openedAt)}</td>
  <td><div class="row" style="gap:2px">${t.beMoved?'<span class="pill s-a" style="font-size:9px">BE✓</span>':`<button class="btn ${beHit?'warn':'ghost'} sm" data-act="beMove" data-id="${t.id}" title="SL به BE${beHit?' — تریگر فعال':' (دستی)'}">🛡 BE</button>`}<button class="btn ghost sm" data-act="partial" data-id="${t.id}">⤴ Partial</button><button class="btn ok sm" data-act="closeTrade" data-id="${t.id}">✓ Close</button><button class="btn ghost sm" data-act="tradeOpen" data-id="${t.id}">👁</button></div></td></tr>`;}).join('')}</tbody></table></div>`:'<div class="hint">پوزیشن بازی وجود ندارد. از «معامله جدید» ثبت کنید.</div>'}</div>`;};
 VIEWS.journal=m=>{const f=filtered();
@@ -1234,7 +1234,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{
  const anr=e.target.closest('[data-ansr]');if(anr){DB.answers[anr.dataset.ansr]=+anr.value;anr.nextElementSibling.textContent=anr.value;persist();return;}
  const ant=e.target.closest('[data-anst]');if(ant){DB.answers[ant.dataset.anst]=ant.value;persist();return;}
- const cur=e.target.closest('[data-cur]');if(cur){const t=DB.trades.find(x=>x.id===cur.dataset.cur);if(t){t.cur=num(cur.value)||null;persist();const fl=$(`[data-fl="${t.id}"]`);if(fl){fl.textContent=fmtU(floatPL(t));fl.className='ltr '+signCls(floatPL(t));}}return;}
+ const cur=e.target.closest('[data-cur]');if(cur){const t=DB.trades.find(x=>x.id===cur.dataset.cur);if(t){t.cur=num(cur.value)||null;persist();const fl=$(`[data-fl="${t.id}"]`);if(fl){fl.textContent=fmtU(floatPL(t));fl.className='ltr '+signCls(floatPL(t));}const fr=$(`[data-fr="${t.id}"]`);if(fr){fr.textContent=fmtR(floatR(t));fr.className='ltr '+signCls(floatR(t));}}return;}
  if(e.target.id==='ovrReason'||e.target.id==='ntOvrReason')UI.ovrReason=e.target.value;else if(e.target.id==='ovrChk'||e.target.id==='ntOvrChk'){UI.ovr=e.target.checked;persist();var _g=gateEval();var _gp=document.getElementById('gatePanel');if(_gp)_gp.innerHTML=gatePanelHTML(_g);var _ng=document.getElementById('ntGateWhy');if(_ng)updateNtGate();}
 });
 document.addEventListener('change',e=>{
