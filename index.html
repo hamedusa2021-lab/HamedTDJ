@@ -282,7 +282,7 @@ function defaultDB(){const a1=uid();
   {id:uid(),text:'۳۰ دقیقه قبل و بعد خبر قرمز معامله نمی‌کنم',type:'news',priority:1,en:true,blocking:true,warning:false},
   {id:uid(),text:'حداکثر ریسک هر معامله مطابق تنظیمات',type:'risk',priority:2,en:true,blocking:true,warning:false},
   {id:uid(),text:'بعد از ۲ باخت متوالی ۳۰ دقیقه استراحت',type:'psychology',priority:2,en:true,blocking:false,warning:true}],
- plan:{strategy:'Liquidity Sweep + ICT Concepts',entryModel:'Sweep → BOS → FVG Retest',htfBias:'Daily / H4 Structure',confirmation:'Candle Close + displacement',slModel:'پشت نقدینگی یا Swing',tpModel:'Liquidity Pool مقابل / RR ثابت',minRR:2,
+ plan:{strategy:'Liquidity Sweep + ICT Concepts',entryModel:'Sweep → BOS → FVG Retest',htfBias:'Daily / H4 Structure',confirmation:'Candle Close + displacement',slModel:'پشت نقدینگی یا Swing',tpModel:'Liquidity Pool مقابل / RR ثابت',minRR:2,entryImgs:[],
   daily:'حداکثر ۳ معامله در روز',weekly:'هفته را با سود یا بدون ضرر ببند',
   do:['فقط سشن‌های پرحجم','ثبت فوری معامله در ژورنال','رعایت مدیریت ریسک'],
   dont:['معامله در خبر قرمز','Revenge Trading','جابه‌جایی SL به ضرر'],
@@ -830,7 +830,12 @@ VIEWS.plan=m=>{const p=DB.plan;
  <div class="f"><label>Session Rules</label><input id="pls_sess" value="${esc(p.sess||'')}"></div>
  <div class="f"><label>Psychology Rules</label><input id="pls_psych" value="${esc(p.psych||'')}"></div>
  </div>
- <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:14px">${listEd('do','✅ DO')}${listEd('dont','⛔ DON\'T')}</div></div>`;};
+ <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:14px">${listEd('do','✅ DO')}${listEd('dont','⛔ DON\'T')}</div>
+ <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+ <div class="row" style="margin-bottom:8px"><h3 style="font-size:13px;margin:0">????? ???? (تصاویر)</h3><button class="btn ok sm" data-act="plImgAdd" style="margin-inline-start:auto">+ ???? ????</button></div>
+ <div class="hint" style="margin-bottom:10px">تصاویر مدل ورود خودت رو اینجا آپلود کن. فایل‌ها فشرده (حداکثر 1200px) و داخل مرورگر ذخیره می‌شن. کلیک روی تصویر = نمایش بزرگ؛ دکمه ✕ = حذف.</div>
+ <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${(p.entryImgs||[]).map((src,i)=>`<div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line)"><img src="${src}" data-act="plImgView" data-i="${i}" style="width:100%;aspect-ratio:4/3;object-fit:cover;cursor:zoom-in;display:block" alt="entry model ${i+1}"><button class="btn ghost sm" data-act="plImgDel" data-i="${i}" style="position:absolute;top:4px;inset-inline-end:4px;background:rgba(3,5,10,.8)">✕</button></div>`).join('')||'<span class="hint">هنوز تصویری اضافه نشده.</span>'}</div></div>
+</div>`;};
 VIEWS.rules=m=>{m.innerHTML=`<div class="card"><div class="chd"><h3>⚖️ TRADING RULES</h3><button class="btn ok sm" data-act="ruleAdd">+ قانون جدید</button></div>
  <div class="hint" style="margin-bottom:10px">قوانین Blocking در گیت ورود نمایش داده می‌شوند و باید در صفحه چک‌لیست تأیید شوند. ترتیب با درگ قابل تغییر است.</div>
  <div id="ruleList">${DB.rules.map(r=>`<div class="listRow" draggable="true" data-id="${r.id}" style="${r.en?'':'opacity:.45'}">
@@ -1037,6 +1042,9 @@ const ACT={
  plAdd:d=>{const inp=$('#pl_'+d.k+'_in');const v=inp.value.trim();if(!v)return;DB.plan[d.k]=DB.plan[d.k]||[];DB.plan[d.k].push(v);persist(true);render();},
  plDel:d=>{DB.plan[d.k].splice(+d.i,1);persist(true);render();},
  plSave:()=>{['strategy','entryModel','htfBias','confirmation','slModel','tpModel'].forEach(k=>{const el=$('#pls_'+k);if(el)DB.plan[k]=el.value;});DB.plan.minRR=num($('#pls_minRR').value)||2;DB.plan.daily=$('#pls_daily').value;DB.plan.weekly=$('#pls_weekly').value;DB.plan.news=$('#pls_news').value;DB.plan.sess=$('#pls_sess').value;DB.plan.psych=$('#pls_psych').value;persist(true);toast('پلن ذخیره شد','ok');},
+ plImgAdd:()=>{const fi=$('#fileIn');fi.accept='image/*';fi.onchange=e=>{const f=e.target.files[0];if(!f)return;if((DB.plan.entryImgs||[]).length>=15){toast('حداکثر 15 تصویر','err');return;}compress(f,src=>{DB.plan.entryImgs=DB.plan.entryImgs||[];DB.plan.entryImgs.push(src);persist(true);render();toast('تصویر اضافه شد','ok');},1200,.75);};fi.value='';fi.click();},
+ plImgDel:d=>{DB.plan.entryImgs.splice(+d.i,1);persist(true);render();},
+ plImgView:d=>{const s=DB.plan.entryImgs&&DB.plan.entryImgs[+d.i];if(s)lightbox(s);},
  rvSave:()=>{DB.reviews[UI.week]={lesson:$('#rvL').value,plan:$('#rvP').value,goals:$('#rvG').value};persist(true);toast('بررسی هفتگی ذخیره شد','ok');},
  stSave:()=>{const tz=$('#stTz').value.trim();try{new Intl.DateTimeFormat('en',{timeZone:tz||'UTC'});DB.settings.displayTz=tz||'UTC';}catch(e){toast('Timezone نامعتبر — به UTC برگشت','warn');DB.settings.displayTz='UTC';}
   DB.settings.minScore=num($('#stMin').value)||70;DB.settings.maxRiskPct=num($('#stMaxRisk').value)||1;DB.settings.minRR=num($('#stMinRR').value)||2;DB.settings.beR=num($('#stBe').value)||1.5;DB.settings.cooldownMin=num($('#stCool').value)||0;
