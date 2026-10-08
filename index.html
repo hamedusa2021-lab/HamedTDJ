@@ -332,6 +332,7 @@ function render(){const m=$('#main');m.innerHTML='';try{(VIEWS[UI.page]||VIEWS.d
 function toast(msg,type='info'){const t=document.createElement('div');t.className='toast '+(type==='info'?'':type);t.textContent=msg;t.onclick=()=>t.remove();$('#toasts').appendChild(t);setTimeout(()=>t.remove(),4500);return type!=='err';}
 let AC=null;
 function beep(f=880,d=.12,v=.05){if(!DB.settings.sound)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d);}catch(e){}}
+function speakNews(title,urgent){try{if(!DB.settings.sound)return;if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance((urgent?'هشدار خبر مطلب: ':'یک خبر نزدیك: ')+title);u.lang='fa-IR';u.rate=1;speechSynthesis.speak(u);}catch(e){}}
 function modal(title,body,btns=[],wide){const old=$('#modalWrap');if(old)old.remove();const w=document.createElement('div');w.id='modalWrap';w.innerHTML=`<div id="modalBox" class="${wide?'wide':''}"><h2><span>${title}</span><button class="btn ghost" id="mX">✕</button></h2><div id="mBody">${body}</div><div class="row" style="justify-content:flex-end;margin-top:16px" id="mBtns"></div></div>`;
  w.addEventListener('click',e=>{if(e.target===w)close();});document.body.appendChild(w);$('#mX').onclick=close;
  (btns||[]).forEach(b=>{const el=document.createElement('button');el.className='btn '+(b.cls||'');el.textContent=b.t;el.onclick=()=>b.fn&&b.fn(close);$('#mBtns').appendChild(el);});
@@ -1259,7 +1260,7 @@ function tick(){try{const now=Date.now();const dz=DB.settings.displayTz;
  DB.sessions.filter(s=>s.en).forEach(s=>{const i=sessInfo(s,now);const key=s.id;const was=_fired.get(key);if(was!==undefined&&was!==i.open){if(DB.settings.notif){toast(i.open?`🟢 ${s.name} OPEN شد`:`🔴 ${s.name} بسته شد`,i.open?'ok':'warn');beep(i.open?990:440,.18);}}
   _fired.set(key,i.open);});
  DB.news.filter(e=>e.en!==false&&e.impact!=='low').forEach(e=>{const ms=e.at-now;const st=ms<=0?'now':(ms<=6e5?'10m':(ms<=18e5?'30m':null));const k='n'+e.id;
-  if(st&&_newsFired.get(k)!==st){_newsFired.set(k,st);if(DB.settings.notif){toast(st==='now'?('📰 '+e.title+' — زمان رویداد'):('📰 '+e.title+' — '+(st==='10m'?'کمتر از ۱۰ دقیقه باقی مانده':'حدود ۳۰ دقیقه باقی مانده')),st==='now'?'warn':'info');beep(st==='now'?520:700,.18);}}});
+  if(st&&_newsFired.get(k)!==st){_newsFired.set(k,st);if(DB.settings.notif){toast(st==='now'?('📰 '+e.title+' — زمان رویداد'):('📰 '+e.title+' — '+(st==='10m'?'کمتر از ۱۰ دقیقه باقی مانده':'حدود ۳۰ دقیقه باقی مانده')),st==='now'?'warn':'info');beep(st==='now'?520:700,.18);speakNews(e.title,st==='now');}}});
 }catch(e){if(window.console)console.error('tick',e);}}
 setInterval(tick,1000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)doSave();});
