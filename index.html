@@ -518,7 +518,7 @@ function gateEval(ctx){ctx=ctx||{};const g=gateScore();const b=breaker();const r
  if(fne&&fne.ev.impact==='high'&&DB.settings.newsBlock!==false){const mi=Math.round(Math.abs(fne.ms)/6e4);reasons.push('📰 Forex Factory: '+fne.ev.title+' — '+(fne.ms>=0?mi+' دقیقه تا شروع خبر':mi+' دقیقه از شروع خبر گذشته'));}
  if(ne&&ne.ev.impact==='med')warnings.push('خبر Medium نزدیک است: '+ne.ev.title);
  if(fne&&fne.ev.impact==='med')warnings.push('Forex Factory Medium نزدیک است: '+fne.ev.title);
- if(ctx.session==='custom-none'&&DB.settings.autoSession)reasons.push('Outside all enabled sessions');
+ if(ctx.session&&ctx.session!=='__auto'&&ctx.session!=='custom'&&DB.settings.autoSession){if(ctx.session==='custom-none')reasons.push('خارج از سشن‌های فعال');else{const _act=activeSessions().map(s=>s.name);if(!_act.includes(ctx.session))reasons.push('سشن انتخابی الان بسته است: '+ctx.session);}}
  const unAcked=DB.rules.filter(r=>r.en&&r.blocking&&!UI.ack[r.id]);
  unAcked.forEach(r=>reasons.push('⚖️ تأیید نشده: '+r.text));
  return{...g,breaker:b,pass:reasons.length===0,reasons,warnings};}
@@ -703,7 +703,7 @@ function liveCalc(){const e=num($('#fEntry')?.value),s=num($('#fSL')?.value),tp=
  const sd=$('#stkLadder');if(sd)sd.innerHTML=strikeLadder(e,$('#fSym').value);}
 function updateNtGate(){const e=num($('#fEntry').value),s=num($('#fSL').value),tp=num($('#fTP').value);
  const rr=(tp&&e&&s)?r2(Math.abs(tp-e)/Math.abs(e-s)):null;
- const sessSel=$('#fSess').value;const g=gateEval({rr,news:$('#fNews').value,riskPct:num($('#fRisk').value),session:sessSel==='custom-none'?'custom-none':null});
+ const sessSel=$('#fSess').value;const g=gateEval({rr,news:$('#fNews').value,riskPct:num($('#fRisk').value),session:sessSel});
  $('#ntGateSta').className='sta '+(g.pass?'s-g':'s-r');$('#ntGateSta').textContent=g.pass?'🟢 ENTRY PERMITTED':'🔴 ENTRY FORBIDDEN';
  $('#ntGateT').textContent=g.pass?'همه شرایط ورود برقرار است':'شرایط ورود کامل نیست';
  $('#ntGateS').textContent=`Score ${g.pct}% · RR ${rr??'—'}`;
@@ -947,7 +947,7 @@ const ACT={
   rcUseLot:()=>{if(UI.rcLot){$('#fLot').value=UI.rcLot;liveCalc();toast('Suggested lot applied','ok');}},
  ssAdd:()=>{const fi=$('#fileIn');fi.accept='image/*';fi.onchange=e=>{const f=e.target.files[0];if(!f)return;compress(f,d=>{UI.ss.push(d);drawSS();});fi.value='';};fi.click();},
  /* [پچ ۶] Override از UI.ovrReason می‌خواند — قبلاً #ovrReason که فقط در صفحه چک‌لیست وجود داشت */
- ntSave:()=>{const g=gateEval({rr:rrNow(),news:$('#fNews').value,riskPct:num($('#fRisk').value),session:$('#fSess').value==='custom-none'?'custom-none':null});
+ ntSave:()=>{const g=gateEval({rr:rrNow(),news:$('#fNews').value,riskPct:num($('#fRisk').value),session:$('#fSess').value});
   if(!g.pass&&!(UI.ovr&&UI.ovrReason.trim())){toast('🔴 Entry Forbidden — ابتدا گیت را کامل کنید یا Override با دلیل بزنید','err');beep(220,.25);return;}
   const e=num($('#fEntry').value),s=num($('#fSL').value),tp=num($('#fTP').value),lot=num($('#fLot').value),rp=num($('#fRisk').value)||acc().riskPct||1;
   if(!e||!s||!lot)return toast('Entry / SL / Lot را کامل کنید','err');
