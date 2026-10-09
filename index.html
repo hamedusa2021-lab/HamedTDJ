@@ -147,6 +147,7 @@ tr.rowc:hover{background:rgba(139,124,255,.06)}
  #hSess{max-width:110px!important}
  #hAcc{order:-2;min-width:94px;flex:0 0 auto}
  #hSnd{order:9;flex:0 0 auto;min-height:34px;padding:6px 10px}
+ #hSndT{order:10;flex:0 0 auto;min-height:34px;padding:6px 10px}
  #side{position:fixed;inset-inline:0;bottom:0;z-index:60;grid-area:auto;flex-direction:row;align-items:stretch;gap:4px;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;background:rgba(9,13,22,.95);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);border-inline-end:none;scrollbar-width:none;-webkit-overflow-scrolling:touch}
  #side::-webkit-scrollbar{display:none}
  #side .hd{display:none}
@@ -201,7 +202,7 @@ tr.rowc:hover{background:rgba(139,124,255,.06)}
    <div class="hchip"><span class="k">ACTIVE SESSION</span><span class="v" id="hSess" style="max-width:170px;overflow:hidden;text-overflow:ellipsis">—</span></div>
    <div class="hchip"><span class="k">NEXT / COUNTDOWN</span><span class="v" id="hNext">—</span></div>
    <select id="hAcc" style="width:auto;min-width:130px"></select>
-   <button class="btn ghost" id="hSnd" title="صدا">🔇</button>
+   <button class="btn ghost" id="hSnd" title="صدا">🔇</button><button class="btn ghost" id="hSndT" title="تست صدای هشدار خبر">🗣️</button>
   </div>
  </header>
  <main id="main"></main>
@@ -332,7 +333,9 @@ function render(){const m=$('#main');m.innerHTML='';try{(VIEWS[UI.page]||VIEWS.d
 function toast(msg,type='info'){const t=document.createElement('div');t.className='toast '+(type==='info'?'':type);t.textContent=msg;t.onclick=()=>t.remove();$('#toasts').appendChild(t);setTimeout(()=>t.remove(),4500);return type!=='err';}
 let AC=null;
 function beep(f=880,d=.12,v=.05){if(!DB.settings.sound)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d);}catch(e){}}
-function speakNews(title,urgent){try{if(!DB.settings.sound)return;if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance((urgent?'هشدار خبر مطلب: ':'یک خبر نزدیك: ')+title);u.lang='fa-IR';u.rate=1;speechSynthesis.speak(u);}catch(e){}}
+function speakNews(title,urgent){try{if(!DB.settings.sound)return;if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance((urgent?'هشدار خبر مطلب: ':'یک خبر نزدیک: ')+title);u.lang='fa-IR';u.rate=1;try{const vs=speechSynthesis.getVoices();const v=vs.find(x=>x.lang&&String(x.lang).toLowerCase().replace('_','-').startsWith('fa'))||vs.find(x=>x.lang&&String(x.lang).toLowerCase().indexOf('fa-')>=0);if(v)u.voice=v;}catch(e){}speechSynthesis.speak(u);}catch(e){}}
+let _spP=false;function primeSpeech(){if(_spP)return;_spP=true;try{if(!('speechSynthesis' in window))return;speechSynthesis.getVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}}['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,primeSpeech,{passive:true}));
+if('speechSynthesis' in window)try{speechSynthesis.onvoiceschanged=()=>{try{speechSynthesis.getVoices();}catch(e){}};}catch(e){}
 function modal(title,body,btns=[],wide){const old=$('#modalWrap');if(old)old.remove();const w=document.createElement('div');w.id='modalWrap';w.innerHTML=`<div id="modalBox" class="${wide?'wide':''}"><h2><span>${title}</span><button class="btn ghost" id="mX">✕</button></h2><div id="mBody">${body}</div><div class="row" style="justify-content:flex-end;margin-top:16px" id="mBtns"></div></div>`;
  w.addEventListener('click',e=>{if(e.target===w)close();});document.body.appendChild(w);$('#mX').onclick=close;
  (btns||[]).forEach(b=>{const el=document.createElement('button');el.className='btn '+(b.cls||'');el.textContent=b.t;el.onclick=()=>b.fn&&b.fn(close);$('#mBtns').appendChild(el);});
@@ -1253,6 +1256,7 @@ document.addEventListener('change',e=>{
  const col=e.target.closest('[data-col]');if(col){const c=DB.cols.find(x=>(x.id||x.k)===col.dataset.col);if(c){c.en=col.checked;persist();}return;}
 });
 $('#hSnd').onclick=()=>{DB.settings.sound=!DB.settings.sound;persist(true);updSnd();beep();};
+$('#hSndT').onclick=()=>{speakNews('تست هشدار صوتی',true);beep(700,.15);};
 function updSnd(){$('#hSnd').textContent=DB.settings.sound?'🔊':'🔇';}
 function fillAcc(){$('#hAcc').innerHTML=DB.accounts.map(a=>`<option value="${a.id}" ${a.id===DB.activeAcc?'selected':''}>${esc(a.name)}</option>`).join('');}
 $('#hAcc').onchange=e=>{DB.activeAcc=e.target.value;persist(true);render();};
@@ -1270,7 +1274,7 @@ function tick(){try{const now=Date.now();const dz=DB.settings.displayTz;
  DB.sessions.filter(s=>s.en).forEach(s=>{const i=sessInfo(s,now);const key=s.id;const was=_fired.get(key);if(was!==undefined&&was!==i.open){if(DB.settings.notif){toast(i.open?`🟢 ${s.name} OPEN شد`:`🔴 ${s.name} بسته شد`,i.open?'ok':'warn');beep(i.open?990:440,.18);}}
   _fired.set(key,i.open);});
  DB.news.filter(e=>e.en!==false&&e.impact!=='low').forEach(e=>{const ms=e.at-now;const st=ms<=0?'now':(ms<=6e5?'10m':(ms<=18e5?'30m':null));const k='n'+e.id;
-  if(st&&_newsFired.get(k)!==st){_newsFired.set(k,st);if(DB.settings.notif){toast(st==='now'?('📰 '+e.title+' — زمان رویداد'):('📰 '+e.title+' — '+(st==='10m'?'کمتر از ۱۰ دقیقه باقی مانده':'حدود ۳۰ دقیقه باقی مانده')),st==='now'?'warn':'info');beep(st==='now'?520:700,.18);speakNews(e.title,st==='now');}}});
+  if(st&&_newsFired.get(k)!==st){_newsFired.set(k,st);if(DB.settings.notif){toast(st==='now'?('📰 '+e.title+' — زمان رویداد'):('📰 '+e.title+' — '+(st==='10m'?'کمتر از ۱۰ دقیقه باقی مانده':'حدود ۳۰ دقیقه باقی مانده')),st==='now'?'warn':'info');beep(st==='now'?520:700,.18);}speakNews(e.title,st==='now');}});
 }catch(e){if(window.console)console.error('tick',e);}}
 setInterval(tick,1000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)doSave();});
