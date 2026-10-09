@@ -600,20 +600,6 @@ VIEWS.dash=m=>{const list=DB.widgets.filter(w=>w.en).sort((a,b)=>(a.order||0)-(b
  m.innerHTML=`${nh?`<div class="card" style="padding:12px 16px;border-color:${inWin?'rgba(246,70,93,.55)':'var(--line)'}"><div class="row" style="justify-content:space-between"><span>📰 خبر High بعدی: <b>${esc(nh.title)}</b> <span class="pill ltr" style="font-size:10px">${esc(nh.cur||'')}</span>${inWin?' <span class="pill s-r" style="font-size:10px">در پنجره خبر — گیت بسته است</span>':''}</span><span class="row"><b class="bignum ltr" style="font-size:16px" data-newscd="${nh.id}">${fmtDur(nh.at-Date.now())}</b><button class="btn ghost sm" data-nav="news">تقویم ←</button></span></div></div>`:''}
  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(235px,1fr))">${list.map(w=>{const def=WD[w.id];if(!def)return'';return`<div class="stat w${w.w||1}" data-wid="${w.id}">${def.f()}</div>`;}).join('')||'<div class="hint">ویجتی فعال نیست — از تنظیمات فعال کنید</div>'}</div>`;};
 VIEWS.checklist=m=>{const g=gateEval();
- const MAXD=2;
- const flowHTML=(list,d)=>(list||[]).map((s,i)=>`<div class="flItem" data-id="${s.id}" style="display:flex;align-items:flex-start;flex:0 0 auto">
- <div style="display:flex;flex-direction:column;align-items:stretch;gap:6px;background:var(--p2);border:1px solid ${i===(list||[]).length-1&&d===0?'var(--acc2)':'var(--line)'};border-radius:11px;padding:8px;width:${d===0?178:148}px;${i===(list||[]).length-1&&d===0?'box-shadow:0 0 14px rgba(34,211,238,.25);':''}">
- <div style="display:flex;align-items:center;gap:6px">
- <span style="color:var(--acc);font-size:11px;font-weight:800">${i+1}</span>
- <button class="btn ghost sm" data-act="flDel" data-id="${s.id}" style="margin-inline-start:auto;padding:0 6px">✕</button></div>
- <input data-fl="${s.id}" value="${esc(s.name||'')}" onchange="ACT.flEdit(this.dataset.fl,this.value)" style="background:transparent;border:none;padding:0;font-weight:600;width:100%" placeholder="نام گام">
- <div style="display:flex;flex-wrap:wrap;gap:4px">
- ${(s.imgs||[]).map((im,ii)=>`<div style="position:relative;width:76px;flex:0 0 auto"><img src="${im}" data-act="plImgView" data-fl="${s.id}" data-ii="${ii}" style="width:76px;height:54px;object-fit:cover;border-radius:6px;cursor:zoom-in;display:block" alt="${esc(s.name||'step')} ${ii+1}"><button class="btn ghost sm" data-act="flImgDel" data-id="${s.id}" data-ii="${ii}" style="position:absolute;top:1px;inset-inline-end:1px;padding:0 3px;font-size:8px;line-height:1.2;background:rgba(3,5,10,.85)">✕</button></div>`).join('')}
- ${(s.imgs||[]).length<6?`<button class="btn ghost sm" data-act="flImg" data-id="${s.id}" style="width:76px;height:54px;font-size:9.5px;padding:0">📷 + عکس</button>`:''}
- </div>
- ${d<MAXD?`<div class="flowList" data-pid="${s.id}" dir="ltr" style="display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:6px 0 2px">${flowHTML(s.sub,d+1)}${((s.sub||[]).length<6)?`<button class="btn ghost sm" data-act="flSub" data-id="${s.id}" style="flex:0 0 auto;height:54px;font-size:9.5px;padding:0 8px;white-space:nowrap">+ زیر-فلو</button>`:''}</div>`:''}
- </div>
- ${i<(list||[]).length-1?'<div style="align-self:center;color:var(--acc);font-size:17px;padding:0 7px">➜</div>':''}</div>`).join('');
 
  m.innerHTML=`<div class="card glow"><div id="gatePanel">${gatePanelHTML(g)}</div></div>
  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:14px">
@@ -840,6 +826,21 @@ VIEWS.plan=m=>{const p=DB.plan;
  if(!Array.isArray(p.flow)){const src=p.entryModel||'Liquidity Sweep ➜ BOS ➜ FVG Retest ➜ Confirmation ➜ ENTRY';p.flow=src.split(/\s*(?:→|➜|»|›|\||->)\s*/).map(s=>s.trim()).filter(Boolean).map(x=>({id:uid(),name:x,imgs:[]}));persist(true);}else{let ch=false;p.flow.forEach(s=>{if(!('name' in s)){s.name=s.text||'';delete s.text;ch=true;}if(!('imgs' in s)){s.imgs=s.img?[s.img]:[];delete s.img;ch=true;}});if(ch)persist(true);}
  if(Array.isArray(p.entryImgs)){p.entryImgs.forEach(im=>p.flow.push({id:uid(),name:'',imgs:[im]}));delete p.entryImgs;persist(true);}
  const listEd=(key,title)=>`<div class="f"><label>${title}</label><div id="pl_${key}">${(p[key]||[]).map((x,i)=>`<div class="listRow"><span style="flex:1">${esc(x)}</span><button class="btn ghost sm" data-act="plDel" data-k="${key}" data-i="${i}">🗑</button></div>`).join('')||'<span class="hint">—</span>'}</div><div class="row"><input id="pl_${key}_in" placeholder="مورد جدید…"><button class="btn ghost sm" data-act="plAdd" data-k="${key}">+</button></div></div>`;
+ const MAXD=2;
+ const flowHTML=(list,d)=>(list||[]).map((s,i)=>`<div class="flItem" data-id="${s.id}" style="display:flex;align-items:flex-start;flex:0 0 auto">
+ <div style="display:flex;flex-direction:column;align-items:stretch;gap:6px;background:var(--p2);border:1px solid ${i===(list||[]).length-1&&d===0?'var(--acc2)':'var(--line)'};border-radius:11px;padding:8px;width:${d===0?178:148}px;${i===(list||[]).length-1&&d===0?'box-shadow:0 0 14px rgba(34,211,238,.25);':''}">
+ <div style="display:flex;align-items:center;gap:6px">
+ <span style="color:var(--acc);font-size:11px;font-weight:800">${i+1}</span>
+ <button class="btn ghost sm" data-act="flDel" data-id="${s.id}" style="margin-inline-start:auto;padding:0 6px">✕</button></div>
+ <input data-fl="${s.id}" value="${esc(s.name||'')}" onchange="ACT.flEdit(this.dataset.fl,this.value)" style="background:transparent;border:none;padding:0;font-weight:600;width:100%" placeholder="نام گام">
+ <div style="display:flex;flex-wrap:wrap;gap:4px">
+ ${(s.imgs||[]).map((im,ii)=>`<div style="position:relative;width:76px;flex:0 0 auto"><img src="${im}" data-act="plImgView" data-fl="${s.id}" data-ii="${ii}" style="width:76px;height:54px;object-fit:cover;border-radius:6px;cursor:zoom-in;display:block" alt="${esc(s.name||'step')} ${ii+1}"><button class="btn ghost sm" data-act="flImgDel" data-id="${s.id}" data-ii="${ii}" style="position:absolute;top:1px;inset-inline-end:1px;padding:0 3px;font-size:8px;line-height:1.2;background:rgba(3,5,10,.85)">✕</button></div>`).join('')}
+ ${(s.imgs||[]).length<6?`<button class="btn ghost sm" data-act="flImg" data-id="${s.id}" style="width:76px;height:54px;font-size:9.5px;padding:0">📷 + عکس</button>`:''}
+ </div>
+ ${d<MAXD?`<div class="flowList" data-pid="${s.id}" dir="ltr" style="display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:6px 0 2px">${flowHTML(s.sub,d+1)}${((s.sub||[]).length<6)?`<button class="btn ghost sm" data-act="flSub" data-id="${s.id}" style="flex:0 0 auto;height:54px;font-size:9.5px;padding:0 8px;white-space:nowrap">+ زیر-فلو</button>`:''}</div>`:''}
+ </div>
+ ${i<(list||[]).length-1?'<div style="align-self:center;color:var(--acc);font-size:17px;padding:0 7px">➜</div>':''}</div>`).join('');
+
  m.innerHTML=`<div class="card glow"><div class="chd"><h3>🧭 TRADING PLAN</h3><button class="btn ok sm" data-act="plSave">💾 ذخیره</button></div>
  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
  ${[['strategy','Strategy'],['entryModel','Entry Model'],['htfBias','HTF Bias'],['confirmation','Confirmation'],['slModel','SL Model'],['tpModel','TP Model']].map(x=>`<div class="f"><label>${x[1]}</label><input id="pls_${x[0]}" value="${esc(p[x[0]]||'')}"></div>`).join('')}
